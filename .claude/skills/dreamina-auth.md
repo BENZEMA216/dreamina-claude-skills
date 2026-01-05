@@ -1,0 +1,24 @@
+---
+name: dreamina-auth
+description: Dreamina API 认证配置，包含 cookie 和通用 headers
+---
+
+# Dreamina API 认证配置
+
+## Cookie
+```
+x-web-secsdk-uid=45527178-54b1-43fb-8eb1-1a44a46618ed; fpk1=d14a3ffbb459236f6eff28ee085362ed040edbf23a15e7b877fe100448dd91810ada2c03a67267f60e789d106e669036; n_mh=T8JZ_4L7DgICzE-2YJV-Qtz8C67VzsajyyG_k5S-RfA; d_ticket=f1ffc0f5f6641d8e119bc05f80deb9dd06871; user_spaces_idc={"7260052976033595708":"lq"}; _v2_spipe_web_id=7566559643800191039; env_host=cc-tools-env.gf.bytedance.net; DREAMINA_THEME=dark; sid_guard=7ee405dc81fbb63630aab56fcf91812b%7C1766040390%7C31536000%7CFri%2C+18-Dec-2026+06%3A46%3A30+GMT; uid_tt=59bd94dea88371c5e6dfb1d1c20e48b8; uid_tt_ss=59bd94dea88371c5e6dfb1d1c20e48b8; sid_tt=7ee405dc81fbb63630aab56fcf91812b; sessionid=7ee405dc81fbb63630aab56fcf91812b; sessionid_ss=7ee405dc81fbb63630aab56fcf91812b; session_tlb_tag=sttt%7C14%7CfuQF3IH7tjYwqrVvz5GBK__________angjvAMgci1Fu-t24YbLp4ITgBkGPzWN60udxAcme4mw%3D; is_staff_user=false; sid_ucp_v1=1.0.0-KDI5YTI3NTJmYzFhNTU1ZTk4ZDIzM2I4OGFiYWMzZWE2YWRjZTRlNDQKHwjfkNDxwM3EAhDGxo7KBhifrR8gDDC2x4OmBjgIQCYaAmxxIiA3ZWU0MDVkYzgxZmJiNjM2MzBhYWI1NmZjZjkxODEyYg; ssid_ucp_v1=1.0.0-KDI5YTI3NTJmYzFhNTU1ZTk4ZDIzM2I4OGFiYWMzZWE2YWRjZTRlNDQKHwjfkNDxwM3EAhDGxo7KBhifrR8gDDC2x4OmBjgIQCYaAmxxIiA3ZWU0MDVkYzgxZmJiNjM2MzBhYWI1NmZjZjkxODEyYg; _isHitHomeHeaderRefreshExperiment=1; dm_auid=GeHqwAQ6XSX1CzLJp/dLcPcMZYrSttERkfEEke86mYM=; uifid_temp=2ef3e99dc2c8a4456c279029beaa3ab8de7e43e99402ad84eeff39b45ea3bba2f4d346ebbe5a63e4511b2b59c6a450d0e682a1fbaaf56559e74f954b53d9e0764e7791b349d3691b0106a894f1cd39b6a06e0c9affc55c6c16dc12a5a7ad4891163b27a2b34e84e1e235c57d51ae4d90; uifid=2ef3e99dc2c8a4456c279029beaa3ab8de7e43e99402ad84eeff39b45ea3bba2f4d346ebbe5a63e4511b2b59c6a450d05353e65e19ff5609bc79ebbae64f4110214f7a0d6f70161d11c1c302d9b5ecfae0857a3195a1ae5a586e480f1785c254d150866901da5a916d7d0520a64805e62c2d73ea0e4e935775ad9671ded726d5b157a93e883408921e3bb0fa75fe796667b32ecab81010d0f7d72f7f5415c136ed5cc394e44a1f481c1c3602686fe7e282ac4094a8123588809c2a0af727f6a0; s_v_web_id=verify_mjia6tfs_Su4z9nCv_Icpa_4Kea_9d5n_hdfPy5VMt6re; _tea_web_id=7564380154550715910; ttwid=1|mEF5zINH411SRkuh97ZgGgiFOvUl2v0Bocm2p-_VuW0|1767629840|2f7913bd321163682dfe6dcb072aad7de593984746676f1f0d77edac5b5881d8; _uetsid=7a468430e9f611f08b058390576970c1; _uetvid=cb177fe0b00411f0826b952dc9c7e5fe; odin_tt=a0231b981af6d8abcefe6e79b2ffc5e6bf05a1d10c5a7351fe95eb4da100950e9412c9659142e3d5b77271c20c41d2a0b27543e01d6058839b35f1cf3a8bced2
+```
+
+## 通用 Headers
+```bash
+-H 'Content-Type: application/json' \
+-H 'x-tt-env: ppe_resource_query' \
+-H 'x-use-ppe: 1' \
+-H 'pf: 3'
+```
+
+## Base URL
+```
+https://dreamina-agent-operation.bytedance.net/dreamina/mcp/v1
+```

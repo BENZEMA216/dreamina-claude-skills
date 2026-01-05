@@ -1,0 +1,9 @@
+.DS_Store
+docx_temp/
+docx_tmp/
+puppies/
+*.docx
+1.sh
+AGENT-SP/
+dreamina-skills/
+dreamina-skills.zip
