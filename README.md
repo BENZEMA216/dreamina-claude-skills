@@ -50,7 +50,7 @@ claude code config add-server chrome-devtools
 }
 ```
 
-### 4. 获取 Dreamina SessionID
+### 4. 获取 Dreamina SessionID（可以安装 Chrome devtool 之后，让 Claude Code 帮你完成上述步骤）
 
 1. 访问 [即梦创作平台](https://jimeng.jianying.com)
 2. 登录账号
