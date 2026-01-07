@@ -37,7 +37,7 @@ cp -r .claude/skills/* ~/.claude/skills/
 npm install -g @britt/mcp-server-chrome-devtools
 
 # 配置 Claude Code
-claude code config add-server chrome-devtools
+claude mcp add chrome-devtools npx chrome-devtools-mcp@latest
 ```
 
 配置示例：
