@@ -37,14 +37,14 @@ def first_end_frame_to_video(sessionid, first_image_uri, last_image_uri, prompt=
     draft_content = {
         "type": "draft",
         "id": str(uuid.uuid4()),
-        "min_version": "3.2.2",
+        "min_version": "3.3.8",
         "is_from_tsn": True,
-        "version": "3.2.2",
+        "version": "3.3.8",
         "main_component_id": component_id,
         "component_list": [{
             "type": "video_base_component",
             "id": component_id,
-            "min_version": "3.2.2",
+            "min_version": "3.3.8",
             "metadata": {
                 "type": "",
                 "id": str(uuid.uuid4()),
@@ -111,7 +111,7 @@ def first_end_frame_to_video(sessionid, first_image_uri, last_image_uri, prompt=
     
     resp = requests.post(
         f"https://jimeng.jianying.com{uri}",
-        params={"aid": 513695, "device_platform": "web", "region": "CN", "da_version": "3.2.2"},
+        params={"aid": 513695, "device_platform": "web", "region": "CN", "da_version": "3.3.8"},
         headers=headers,
         json=data
     )

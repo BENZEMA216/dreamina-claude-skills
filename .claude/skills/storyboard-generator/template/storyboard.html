@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分镜表 - Storyboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --border-color: #2a2a2a;
+            --border-light: #333333;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --text-muted: #555555;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        .header {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .header-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            padding: 8px 16px;
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .meta-info {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .meta-item span {
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 8px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .toolbar-btn {
+            font-family: 'Space Mono', monospace;
+            padding: 12px 20px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+
+        .toolbar-btn.active {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+
+        .toolbar-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .view-toggle {
+            display: flex;
+        }
+
+        .view-toggle button {
+            font-family: 'Space Mono', monospace;
+            padding: 12px 20px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .view-toggle button:first-child {
+            border-right: none;
+        }
+
+        .view-toggle button.active {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+
+        .view-toggle button:hover:not(.active) {
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        .storyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .storyboard-grid.list-view {
+            grid-template-columns: 1fr;
+        }
+
+        .storyboard-grid.list-view .shot-card {
+            display: grid;
+            grid-template-columns: 500px 1fr;
+        }
+
+        .storyboard-grid.list-view .shot-media-container {
+            aspect-ratio: 16/9;
+        }
+
+        .shot-card {
+            background: var(--bg-primary);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .shot-card:hover {
+            z-index: 10;
+        }
+
+        .shot-card:hover .shot-actions {
+            opacity: 1;
+        }
+
+        .shot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .shot-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .shot-badges {
+            display: flex;
+            gap: 10px;
+        }
+
+        .shot-type {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .shot-has-video {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .shot-has-video svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        .shot-media-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--bg-tertiary);
+            overflow: hidden;
+        }
+
+        .shot-media-container.ratio-1-1 { aspect-ratio: 1/1; }
+        .shot-media-container.ratio-4-3 { aspect-ratio: 4/3; }
+        .shot-media-container.ratio-3-4 { aspect-ratio: 3/4; }
+        .shot-media-container.ratio-9-16 { aspect-ratio: 9/16; }
+        .shot-media-container.ratio-21-9 { aspect-ratio: 21/9; }
+        .shot-media-container.ratio-3-2 { aspect-ratio: 3/2; }
+        .shot-media-container.ratio-16-9 { aspect-ratio: 16/9; }
+
+        .shot-image, .shot-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .shot-video {
+            display: none;
+        }
+
+        .shot-media-container.show-video .shot-image {
+            display: none;
+        }
+
+        .shot-media-container.show-video .shot-video {
+            display: block;
+        }
+
+        .media-toggle {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            z-index: 10;
+        }
+
+        .media-toggle button {
+            font-family: 'Space Mono', monospace;
+            padding: 8px 14px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.8);
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .media-toggle button:first-child {
+            border-right: none;
+        }
+
+        .media-toggle button.active {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+
+        .shot-actions {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.8);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+
+        .action-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .shot-image-placeholder {
+            width: calc(100% - 40px);
+            height: calc(100% - 40px);
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            gap: 16px;
+            border: 1px dashed var(--border-light);
+        }
+
+        .shot-image-placeholder svg {
+            width: 32px;
+            height: 32px;
+            opacity: 0.3;
+        }
+
+        .shot-image-placeholder span {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .shot-content {
+            padding: 20px;
+        }
+
+        .shot-description {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-weight: 300;
+        }
+
+        .shot-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .shot-meta-item {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .shot-meta-item strong {
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .shot-notes {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-left: 2px solid var(--text-muted);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .shot-prompt {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: none;
+            line-height: 1.8;
+            word-break: break-all;
+        }
+
+        .shot-card.show-prompt .shot-prompt {
+            display: block;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            z-index: 20;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 1px solid var(--border-light);
+            border-top-color: var(--text-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-family: 'Space Mono', monospace;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            font-family: 'Space Mono', monospace;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .export-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .export-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            min-width: 180px;
+            z-index: 100;
+        }
+
+        .export-menu:hover .export-dropdown {
+            display: block;
+        }
+
+        .export-dropdown button {
+            font-family: 'Space Mono', monospace;
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+        }
+
+        .export-dropdown button:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        .export-dropdown button:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 80px 40px;
+            text-align: center;
+            background: var(--bg-primary);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            color: var(--text-muted);
+            opacity: 0.3;
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        @media (max-width: 1200px) {
+            .storyboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .storyboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .storyboard-grid.list-view .shot-card {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .meta-info {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            .toolbar-left, .toolbar-right {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-top">
+                <h1 id="projectTitle">Storyboard</h1>
+                <div class="header-badge">Storyboard</div>
+            </div>
+            <div class="meta-info">
+                <div class="meta-item">Style<span id="metaStyle">-</span></div>
+                <div class="meta-item">Shots<span id="metaShots">0</span></div>
+                <div class="meta-item">Duration<span id="metaDuration">0s</span></div>
+                <div class="meta-item">Created<span id="metaDate">-</span></div>
+            </div>
+        </header>
+
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <div class="view-toggle">
+                    <button class="active" onclick="setView('grid')">Grid</button>
+                    <button onclick="setView('list')">List</button>
+                </div>
+            </div>
+            
+            <div class="toolbar-right">
+                <button class="toolbar-btn" onclick="toggleAllPrompts()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                    Prompts
+                </button>
+
+                <button class="toolbar-btn" onclick="regenerateAll()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Regenerate All
+                </button>
+
+                <button class="toolbar-btn" onclick="generateAllVideos()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Generate Videos
+                </button>
+
+                <div class="export-menu">
+                    <button class="toolbar-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        Export
+                    </button>
+                    <div class="export-dropdown">
+                        <button onclick="exportJSON()">Export JSON</button>
+                        <button onclick="exportImages()">Export Images</button>
+                        <button onclick="exportVideos()">Export Videos</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="storyboard-grid" id="storyboardGrid"></div>
+
+        <footer class="footer">
+            <p>Generated by Storyboard Generator</p>
+        </footer>
+    </div>
+
+    <script>
+        let storyboardData = {
+            project_title: "Demo Storyboard",
+            style: "Cinematic",
+            create_date: new Date().toLocaleDateString(),
+            shots: [
+                {
+                    shot_id: 1,
+                    shot_type: "Wide",
+                    description: "城市全景，黄昏时分，高楼大厦的轮廓被夕阳染成金色。",
+                    image_url: null,
+                    video_url: null,
+                    duration: "3s",
+                    ratio: "16:9",
+                    camera_move: "Push In",
+                    transition: "Fade In",
+                    prompt: "cinematic photography, 35mm film, wide establishing shot, city skyline at golden hour, warm orange and purple sky, silhouette of skyscrapers, dramatic lighting, 8k resolution",
+                    notes: "Opening shot, ambient music fade in"
+                },
+                {
+                    shot_id: 2,
+                    shot_type: "Medium",
+                    description: "主角背影，站在天台边缘，眺望远方的城市。",
+                    image_url: null,
+                    video_url: null,
+                    duration: "2s",
+                    ratio: "16:9",
+                    camera_move: "Static",
+                    transition: "Cut",
+                    prompt: "cinematic photography, 35mm film, medium shot from behind, young man standing at rooftop edge, looking at city view, golden hour lighting, wind in hair, contemplative mood, 8k resolution",
+                    notes: "Establish character and environment relationship"
+                },
+                {
+                    shot_id: 3,
+                    shot_type: "Close",
+                    description: "主角侧脸特写，风吹动发丝，眼神坚定。",
+                    image_url: null,
+                    video_url: null,
+                    duration: "2s",
+                    ratio: "4:3",
+                    camera_move: "Slight Pan",
+                    transition: "Cut",
+                    prompt: "cinematic photography, 35mm film, close-up shot, young man side profile, determined eyes, wind blowing hair, golden hour rim lighting, shallow depth of field, emotional moment, 8k resolution",
+                    notes: "Emotional turning point, sync with music climax"
+                },
+                {
+                    shot_id: 4,
+                    shot_type: "ECU",
+                    description: "手部特写，握紧拳头，展现决心。",
+                    image_url: null,
+                    video_url: null,
+                    duration: "1.5s",
+                    ratio: "1:1",
+                    camera_move: "Static",
+                    transition: "Smash Cut",
+                    prompt: "cinematic photography, 35mm film, extreme close-up, clenched fist, determined grip, dramatic side lighting, warm tones, shallow depth of field, 8k resolution",
+                    notes: "Quick cut in, emphasize emotion"
+                },
+                {
+                    shot_id: 5,
+                    shot_type: "Full",
+                    description: "主角转身离开天台，走向楼梯入口，背影渐行渐远。",
+                    image_url: null,
+                    video_url: null,
+                    duration: "3s",
+                    ratio: "16:9",
+                    camera_move: "Static",
+                    transition: "Dissolve",
+                    prompt: "cinematic photography, 35mm film, wide shot, young man walking away from camera, rooftop setting, heading towards stairway door, diminishing figure, twilight atmosphere, melancholic mood, 8k resolution",
+                    notes: "Ending shot, gradual fade to black"
+                },
+                {
+                    shot_id: 6,
+                    shot_type: "Ultra Wide",
+                    description: "城市夜景全貌，万家灯火，与开场形成呼应。",
+                    image_url: null,
+                    video_url: null,
+                    duration: "3s",
+                    ratio: "21:9",
+                    camera_move: "Pull Back",
+                    transition: "Fade Out",
+                    prompt: "cinematic photography, 35mm film, ultra wide establishing shot, city night panorama, thousands of lights, blue hour sky, peaceful atmosphere, anamorphic lens flare, 8k resolution",
+                    notes: "Final shot, overlay credits"
+                }
+            ]
+        };
+
+        let showPrompts = false;
+
+        function init() {
+            renderStoryboard(storyboardData);
+        }
+
+        function renderStoryboard(data) {
+            document.getElementById('projectTitle').textContent = data.project_title || 'Storyboard';
+            document.getElementById('metaStyle').textContent = data.style || '-';
+            document.getElementById('metaShots').textContent = data.shots.length;
+            document.getElementById('metaDuration').textContent = calculateTotalDuration(data.shots);
+            document.getElementById('metaDate').textContent = data.create_date || '-';
+
+            const grid = document.getElementById('storyboardGrid');
+            grid.innerHTML = '';
+
+            if (!data.shots || data.shots.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p>No shots yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            data.shots.forEach((shot, index) => {
+                grid.appendChild(createShotCard(shot, index));
+            });
+        }
+
+        function createShotCard(shot, index) {
+            const card = document.createElement('div');
+            card.className = 'shot-card' + (showPrompts ? ' show-prompt' : '');
+            card.dataset.shotId = shot.shot_id;
+
+            const ratioClass = getRatioClass(shot.ratio);
+            const shotNumber = String(shot.shot_id).padStart(2, '0');
+            const hasVideo = !!shot.video_url;
+            const hasImage = !!shot.image_url;
+
+            card.innerHTML = `
+                <div class="shot-header">
+                    <span class="shot-number">SHOT ${shotNumber}</span>
+                    <div class="shot-badges">
+                        <span class="shot-type">${shot.shot_type || 'Shot'}</span>
+                        ${hasVideo ? `
+                        <span class="shot-has-video">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            </svg>
+                            Video
+                        </span>` : ''}
+                    </div>
+                </div>
+                <div class="shot-media-container ${ratioClass}">
+                    <div class="shot-actions">
+                        <button class="action-btn" title="Regenerate" onclick="regenerateShot(${shot.shot_id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
+                        <button class="action-btn" title="Generate Video" onclick="generateVideo(${shot.shot_id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            </svg>
+                        </button>
+                        <button class="action-btn" title="Download" onclick="downloadMedia(${shot.shot_id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                        </button>
+                    </div>
+                    ${hasImage ? `
+                        <img class="shot-image" src="${shot.image_url}" alt="Shot ${shotNumber}">
+                        ${hasVideo ? `
+                            <video class="shot-video" src="${shot.video_url}" loop muted></video>
+                            <div class="media-toggle">
+                                <button class="active" onclick="showImage(${shot.shot_id})">Image</button>
+                                <button onclick="showVideo(${shot.shot_id})">Video</button>
+                            </div>
+                        ` : ''}
+                    ` : `
+                        <div class="shot-image-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>Awaiting Generation</span>
+                        </div>
+                    `}
+                </div>
+                <div class="shot-content">
+                    <p class="shot-description">${shot.description || ''}</p>
+                    <div class="shot-meta">
+                        <span class="shot-meta-item"><strong>Duration:</strong> ${shot.duration || '-'}</span>
+                        <span class="shot-meta-item"><strong>Ratio:</strong> ${shot.ratio || '-'}</span>
+                        <span class="shot-meta-item"><strong>Move:</strong> ${shot.camera_move || '-'}</span>
+                        <span class="shot-meta-item"><strong>Trans:</strong> ${shot.transition || '-'}</span>
+                    </div>
+                    ${shot.notes ? `<div class="shot-notes">${shot.notes}</div>` : ''}
+                    ${shot.prompt ? `<div class="shot-prompt">${shot.prompt}</div>` : ''}
+                </div>
+            `;
+
+            return card;
+        }
+
+        function getRatioClass(ratio) {
+            if (!ratio) return 'ratio-16-9';
+            const r = ratio.replace(':', '-');
+            return `ratio-${r}`;
+        }
+
+        function calculateTotalDuration(shots) {
+            let total = 0;
+            shots.forEach(shot => {
+                if (shot.duration) {
+                    const num = parseFloat(shot.duration);
+                    if (!isNaN(num)) total += num;
+                }
+            });
+            return total + 's';
+        }
+
+        function setView(view) {
+            const grid = document.getElementById('storyboardGrid');
+            const buttons = document.querySelectorAll('.view-toggle button');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (view === 'list') {
+                grid.classList.add('list-view');
+            } else {
+                grid.classList.remove('list-view');
+            }
+        }
+
+        function toggleAllPrompts() {
+            showPrompts = !showPrompts;
+            const cards = document.querySelectorAll('.shot-card');
+            cards.forEach(card => {
+                if (showPrompts) {
+                    card.classList.add('show-prompt');
+                } else {
+                    card.classList.remove('show-prompt');
+                }
+            });
+            
+            const btn = event.target.closest('.toolbar-btn');
+            if (showPrompts) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+
+        function regenerateShot(shotId) {
+            const card = document.querySelector(`[data-shot-id="${shotId}"]`);
+            const container = card.querySelector('.shot-media-container');
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Regenerating...</div>
+            `;
+            container.appendChild(overlay);
+            
+            setTimeout(() => {
+                overlay.remove();
+                console.log(`Regenerated shot ${shotId}`);
+            }, 2000);
+        }
+
+        function generateVideo(shotId) {
+            const card = document.querySelector(`[data-shot-id="${shotId}"]`);
+            const container = card.querySelector('.shot-media-container');
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Generating Video...</div>
+            `;
+            container.appendChild(overlay);
+            
+            setTimeout(() => {
+                overlay.remove();
+                console.log(`Generated video for shot ${shotId}`);
+            }, 3000);
+        }
+
+        function regenerateAll() {
+            if (confirm('Regenerate all shots? This may take a while.')) {
+                console.log('Regenerating all shots...');
+            }
+        }
+
+        function generateAllVideos() {
+            if (confirm('Generate videos for all shots? This may take a while.')) {
+                console.log('Generating all videos...');
+            }
+        }
+
+        function showImage(shotId) {
+            const card = document.querySelector(`[data-shot-id="${shotId}"]`);
+            const container = card.querySelector('.shot-media-container');
+            const buttons = container.querySelectorAll('.media-toggle button');
+            
+            container.classList.remove('show-video');
+            buttons[0].classList.add('active');
+            buttons[1].classList.remove('active');
+        }
+
+        function showVideo(shotId) {
+            const card = document.querySelector(`[data-shot-id="${shotId}"]`);
+            const container = card.querySelector('.shot-media-container');
+            const buttons = container.querySelectorAll('.media-toggle button');
+            const video = container.querySelector('.shot-video');
+            
+            container.classList.add('show-video');
+            buttons[0].classList.remove('active');
+            buttons[1].classList.add('active');
+            
+            if (video) video.play();
+        }
+
+        function downloadMedia(shotId) {
+            const shot = storyboardData.shots.find(s => s.shot_id === shotId);
+            if (shot && shot.image_url) {
+                window.open(shot.image_url, '_blank');
+            }
+        }
+
+        function exportJSON() {
+            const dataStr = JSON.stringify(storyboardData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'storyboard.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportImages() {
+            storyboardData.shots.forEach(shot => {
+                if (shot.image_url) {
+                    window.open(shot.image_url, '_blank');
+                }
+            });
+        }
+
+        function exportVideos() {
+            storyboardData.shots.forEach(shot => {
+                if (shot.video_url) {
+                    window.open(shot.video_url, '_blank');
+                }
+            });
+        }
+
+        function loadStoryboard(data) {
+            storyboardData = data;
+            renderStoryboard(data);
+        }
+
+        function addShot(shot) {
+            if (!shot.shot_id) {
+                shot.shot_id = storyboardData.shots.length + 1;
+            }
+            storyboardData.shots.push(shot);
+            renderStoryboard(storyboardData);
+        }
+
+        function updateShot(shotId, updates) {
+            const index = storyboardData.shots.findIndex(s => s.shot_id === shotId);
+            if (index !== -1) {
+                storyboardData.shots[index] = { ...storyboardData.shots[index], ...updates };
+                renderStoryboard(storyboardData);
+            }
+        }
+
+        function removeShot(shotId) {
+            storyboardData.shots = storyboardData.shots.filter(s => s.shot_id !== shotId);
+            renderStoryboard(storyboardData);
+        }
+
+        init();
+    </script>
+</body>
+</html>

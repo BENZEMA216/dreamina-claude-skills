@@ -12,7 +12,7 @@ description: 通过 ImageX 公网 API 上传图片获取 URI，用于垫图生�
 
 ### 1. 获取上传令牌
 ```bash
-curl -X POST 'https://jimeng.jianying.com/mweb/v1/get_upload_token?aid=513695&da_version=3.2.2' \
+curl -X POST 'https://jimeng.jianying.com/mweb/v1/get_upload_token?aid=513695&da_version=3.3.8' \
   -H 'Content-Type: application/json' \
   -H 'Cookie: sessionid=<your_sessionid>' \
   -d '{"scene": 2}'

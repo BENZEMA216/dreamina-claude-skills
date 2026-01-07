@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艺术电影《千年大佛》- 分镜表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --border-color: #2a2a2a;
+            --border-light: #333333;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --text-muted: #555555;
+        }
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        .container { max-width: 1600px; margin: 0 auto; padding: 60px 40px; }
+        .header { margin-bottom: 60px; padding-bottom: 40px; border-bottom: 1px solid var(--border-color); }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .header h1 { font-family: 'Space Mono', monospace; font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+        .header-badge { font-family: 'Space Mono', monospace; font-size: 0.75rem; padding: 8px 16px; border: 1px solid var(--border-light); color: var(--text-secondary); letter-spacing: 0.1em; text-transform: uppercase; }
+        .meta-info { display: flex; gap: 40px; flex-wrap: wrap; }
+        .meta-item { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .meta-item span { color: var(--text-secondary); margin-left: 8px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding: 20px 0; border-bottom: 1px solid var(--border-color); }
+        .toolbar-left, .toolbar-right { display: flex; gap: 8px; flex-wrap: wrap; }
+        .toolbar-btn { font-family: 'Space Mono', monospace; padding: 12px 20px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 10px; }
+        .toolbar-btn:hover { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+        .toolbar-btn.active { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+        .toolbar-btn svg { width: 14px; height: 14px; }
+        .view-toggle { display: flex; }
+        .view-toggle button { font-family: 'Space Mono', monospace; padding: 12px 20px; border: 1px solid var(--border-color); background: transparent; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.05em; }
+        .view-toggle button:first-child { border-right: none; }
+        .view-toggle button.active { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+        .chapter-title { font-family: 'Space Mono', monospace; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); padding: 20px; background: var(--bg-secondary); border: 1px solid var(--border-color); margin-bottom: 1px; letter-spacing: 0.1em; }
+        .storyboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border-color); border: 1px solid var(--border-color); margin-bottom: 40px; }
+        .storyboard-grid.list-view { grid-template-columns: 1fr; }
+        .storyboard-grid.list-view .shot-card { display: grid; grid-template-columns: 400px 1fr; }
+        .shot-card { background: var(--bg-primary); position: relative; transition: all 0.3s ease; }
+        .shot-card:hover { z-index: 10; }
+        .shot-card:hover .shot-actions { opacity: 1; }
+        .shot-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); }
+        .shot-number { font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; }
+        .shot-badges { display: flex; gap: 8px; }
+        .shot-type { font-family: 'Space Mono', monospace; font-size: 0.6rem; padding: 3px 8px; border: 1px solid var(--border-light); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .shot-media-container { position: relative; width: 100%; aspect-ratio: 16/9; background: var(--bg-tertiary); overflow: hidden; }
+        .shot-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s ease; z-index: 10; }
+        .action-btn { width: 32px; height: 32px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.8); color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .action-btn:hover { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+        .action-btn svg { width: 14px; height: 14px; }
+        .shot-image-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); gap: 12px; background: var(--bg-tertiary); position: relative; }
+        .shot-image-placeholder img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) contrast(1.1); opacity: 0.7; }
+        .shot-image-placeholder .placeholder-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); opacity: 0; transition: opacity 0.2s ease; }
+        .shot-image-placeholder:hover .placeholder-overlay { opacity: 1; }
+        .shot-image-placeholder svg { width: 28px; height: 28px; opacity: 0.6; }
+        .shot-image-placeholder span { font-family: 'Space Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        .shot-content { padding: 16px; }
+        .shot-description { font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); margin-bottom: 12px; font-weight: 300; }
+        .shot-dialogue { margin-top: 12px; padding: 12px; background: var(--bg-secondary); border-left: 2px solid var(--text-muted); font-size: 0.8rem; color: var(--text-muted); }
+        .shot-dialogue strong { color: var(--text-secondary); }
+        .shot-meta { display: flex; gap: 16px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--border-color); margin-top: 12px; }
+        .shot-meta-item { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+        .shot-meta-item strong { color: var(--text-secondary); font-weight: 400; }
+        .shot-prompt { margin-top: 12px; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--text-muted); display: none; line-height: 1.8; word-break: break-all; }
+        .shot-card.show-prompt .shot-prompt { display: block; }
+        .footer { text-align: center; margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--border-color); font-family: 'Space Mono', monospace; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        .loading-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 20; }
+        .loading-spinner { width: 24px; height: 24px; border: 1px solid var(--border-light); border-top-color: var(--text-primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-family: 'Space Mono', monospace; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        @media (max-width: 1200px) { .storyboard-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .container { padding: 30px 20px; } .storyboard-grid { grid-template-columns: 1fr; } .header h1 { font-size: 1.8rem; } .meta-info { flex-direction: column; gap: 12px; } .toolbar { flex-direction: column; gap: 16px; align-items: stretch; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-top">
+                <h1>艺术电影《千年大佛》</h1>
+                <div class="header-badge">Storyboard</div>
+            </div>
+            <div class="meta-info">
+                <div class="meta-item">Director<span>周兵</span></div>
+                <div class="meta-item">Style<span>Cinematic / Documentary</span></div>
+                <div class="meta-item">Shots<span id="metaShots">0</span></div>
+                <div class="meta-item">Chapters<span>10</span></div>
+            </div>
+        </header>
+
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <div class="view-toggle">
+                    <button class="active" onclick="setView('grid')">Grid</button>
+                    <button onclick="setView('list')">List</button>
+                </div>
+            </div>
+            <div class="toolbar-right">
+                <button class="toolbar-btn" onclick="toggleAllPrompts()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                    Prompts
+                </button>
+                <button class="toolbar-btn" onclick="regenerateAll()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    Generate All
+                </button>
+                <button class="toolbar-btn" onclick="exportJSON()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                    Export
+                </button>
+            </div>
+        </div>
+
+        <div id="storyboardContainer"></div>
+
+        <footer class="footer">
+            <p>艺术电影《千年大佛》分镜表 — Generated by Storyboard Generator</p>
+        </footer>
+    </div>
+
+    <script>
+        const storyboardData = {
+            project_title: "艺术电影《千年大佛》",
+            director: "周兵",
+            style: "Cinematic / Documentary",
+            chapters: [
+                {
+                    title: "序言·梦想开始",
+                    shots: [
+                        { shot_id: 1, shot_type: "Full Shot", description: "海通站立全息影像", dialogue: "【海通】大家好，欢迎来到乐山，我是海通。这个世界，对每个人而言，都是一段梦想的旅程。人该如何完成自己的梦想？我的答案就是——勇敢地走出第一步。", ratio: "16:9", prompt: "holographic projection of monk Haitong standing, ethereal blue glow, ancient Chinese temple background, cinematic lighting, 8k" }
+                    ]
+                },
+                {
+                    title: "缘起·心安何处",
+                    shots: [
+                        { shot_id: 2, shot_type: "POV / Underwater", description: "巨大的水流轰鸣声，震耳欲聋，仿佛野兽咆哮。水下视角，浑浊的激流中，无数碎片翻滚。一人沉入水底，绝望挣扎，一只手伸向水面微弱的光。", ratio: "16:9", prompt: "underwater POV shot, murky turbulent water, debris floating, drowning person reaching towards faint light above, dramatic, cinematic, 8k" },
+                        { shot_id: 3, shot_type: "Close Up", description: "海通猛然惊醒，大汗淋漓。眼前是幽暗的禅房，油灯如豆。", ratio: "4:3", prompt: "close up of Buddhist monk Haitong waking from nightmare, sweating, dim candlelit meditation room, dramatic shadows, cinematic, 8k" },
+                        { shot_id: 4, shot_type: "Medium Shot", description: "师父背对海通，敲击磬，节奏平稳，与海通的慌乱形成对比。", dialogue: "【海通】弟子每日诵经禅修，但仍觉得心中不安。我想去云游天下，寻找心安之地。", ratio: "16:9", prompt: "medium shot, elderly Buddhist master with back turned, striking singing bowl, young monk Haitong in background, temple interior, cinematic lighting, 8k" },
+                        { shot_id: 5, shot_type: "Close Up", description: "师父凝视片刻，缓缓颔首。", dialogue: "【师父】去吧，是时候去下山游历一番了。", ratio: "4:3", prompt: "close up of wise elderly Buddhist master face, gentle nod, serene expression, soft temple lighting, cinematic, 8k" },
+                        { shot_id: 6, shot_type: "Time-lapse", description: "时间流逝，外景延时。", ratio: "21:9", prompt: "timelapse of ancient Chinese mountain temple, clouds flowing, day to night transition, cinematic, 8k" },
+                        { shot_id: 7, shot_type: "Insert", description: "师父给海通一个锦囊。", dialogue: "【师父】此去一路保重，这个锦囊里有六个纸条。当心中有困惑，或遇到困难不解，可以依次打开一个，来解惑。", ratio: "1:1", prompt: "close up of elderly hands giving silk pouch to young monk, warm candlelight, ancient Chinese setting, cinematic, 8k" },
+                        { shot_id: 8, shot_type: "Wide / Aerial", description: "高山险峻，海通行走其间。贵州的美丽空镜，山间的云浪。", dialogue: "【海通独白】我一路看到了湖光秋月，山色空朦，看到这人间有苦有乐，有生有死，却一直没找到心中的乐土。", ratio: "21:9", prompt: "aerial shot, lone Buddhist monk walking through dramatic Guizhou mountains, sea of clouds, golden hour, epic landscape, cinematic, 8k" },
+                        { shot_id: 9, shot_type: "Wide Shot", description: "路过一个被水患破坏的村庄，生灵涂炭。看到衣衫褴褛的村民；躺在路边奄奄一息的病人。", ratio: "16:9", prompt: "wide shot of devastated ancient Chinese village after flood, refugees in tattered clothes, monk observing, somber atmosphere, cinematic, 8k" },
+                        { shot_id: 10, shot_type: "Wide Shot", description: "海通走向山顶，看见日出。", ratio: "21:9", prompt: "silhouette of Buddhist monk reaching mountain summit at sunrise, golden rays breaking through clouds, epic vista, cinematic, 8k" }
+                    ]
+                },
+                {
+                    title: "寻踪·三江之险",
+                    shots: [
+                        { shot_id: 11, shot_type: "Wide Shot", description: "一艘船在有峡谷的波涛汹涌的江面上行进。", ratio: "21:9", prompt: "wide shot of wooden boat navigating turbulent river through dramatic gorge, towering cliffs, mist, ancient China, cinematic, 8k" },
+                        { shot_id: 12, shot_type: "Medium Shot", description: "海通抬头，问话。", dialogue: "【海通】前方是何处？", ratio: "16:9", prompt: "medium shot of young Buddhist monk on boat deck looking ahead, wind in robes, river background, cinematic, 8k" },
+                        { shot_id: 13, shot_type: "Close Up", description: "船夫手指指向远方。", dialogue: "【船夫】前方是三江汇合之处，那里有一座山叫做凌云山，嘉州人称之为灵山，九峰汇聚，相传是仙人修行之所。", ratio: "4:3", prompt: "close up of weathered boatman pointing ahead, ancient Chinese river setting, dramatic lighting, cinematic, 8k" },
+                        { shot_id: 14, shot_type: "Aerial / VFX", description: "展示江水奔腾，岷江、青衣江、大渡河汹涌交汇。江面上，来往船只在雾气中若隐若现。长臂猿在山林中穿梭。", ratio: "21:9", prompt: "epic aerial shot of three rivers confluence (Min, Qingyi, Dadu), turbulent waters meeting, boats in mist, lush mountains, wildlife, cinematic, 8k" },
+                        { shot_id: 15, shot_type: "Back Shot", description: "海通站在船头，衣衫飘动，背影。", ratio: "16:9", prompt: "back shot of Buddhist monk standing at bow of boat, robes flowing in wind, facing misty mountain ahead, cinematic, 8k" },
+                        { shot_id: 16, shot_type: "Wide Shot", description: "远方，凌云山在迷雾中若隐若现。忽然，一束曙光刺破云层，照亮江面。三江奔流，三色水浪交汇。江面上有江豚游动。", ratio: "21:9", prompt: "wide shot of Lingyun Mountain emerging from mist, divine light beam breaking through clouds, three rivers confluence, river dolphins, cinematic, 8k" },
+                        { shot_id: 17, shot_type: "Various", description: "蝴蝶在丛林中飞舞，竹叶青盘踞在竹子上。海通攀上凌云山，披雾入林。海通视角，站在凌云山上看到远处的嘉州古城。", ratio: "16:9", prompt: "montage: butterflies in forest, green snake on bamboo, monk climbing misty mountain, POV of ancient Jiazhou city from summit, cinematic, 8k" },
+                        { shot_id: 18, shot_type: "Medium Shot", description: "海通在山洞中，盘腿而坐，闭上双眼。", dialogue: "【海通独白】如此山水秀美之地，也许就是我心中的乐土。", ratio: "4:3", prompt: "medium shot of Buddhist monk meditating in mountain cave, soft light from entrance, serene atmosphere, cinematic, 8k" },
+                        { shot_id: 19, shot_type: "Insert / Nature", description: "兰花的叶子上露珠滴下。溪水澄澈，小鱼穿梭。清晨的阳光下，一只小鹿看向镜头。云层翻卷间，一群朱鹮振翅而起。", ratio: "16:9", prompt: "nature montage: dewdrop on orchid, fish in clear stream, deer looking at camera, crested ibis taking flight, ink wash painting aesthetic, cinematic, 8k" },
+                        { shot_id: 20, shot_type: "Wide Shot", description: "展示整个山的崖壁，但是山上没有大佛。平静天空中出现一道闪电。", ratio: "21:9", prompt: "wide shot of Lingyun Mountain cliff face without Buddha statue, lightning bolt in calm sky, ominous atmosphere, cinematic, 8k" }
+                    ]
+                },
+                {
+                    title: "问道·先贤之迹",
+                    shots: [
+                        { shot_id: 21, shot_type: "Wide Shot", description: "乌云压顶，风雨呼啸。汹涌的浪花拍击着岸边的岩石崖壁，江心船只被大风卷入漩涡，木船剧烈翻转，最终猛撞崖石，瞬间粉碎。", dialogue: "【船夫画外音】法师坐稳了！", ratio: "21:9", prompt: "dramatic wide shot, storm clouds, violent waves crashing cliff, wooden boat caught in whirlpool, ship wreck, cinematic disaster scene, 8k" },
+                        { shot_id: 22, shot_type: "Medium Shot", description: "海通用禅杖去营救掉入水中的人，但却没有成功，自己也险些掉入水中。海通回到岸上，浑身湿透，瑟瑟发抖。", dialogue: "【海通独白】我在此数年，总是会看到这般人间惨剧。我连一个弱小的生命都救不了，独自在山洞修行这些年，短暂的心安又有何用？", ratio: "16:9", prompt: "medium shot of drenched Buddhist monk on riverbank, failed rescue attempt, shivering, anguished expression, stormy background, cinematic, 8k" },
+                        { shot_id: 23, shot_type: "Medium Shot", description: "村民A走上前去，将一件衣服披在海通身上。", dialogue: "【海通】嘉州自古以来就水患频出吗？", ratio: "16:9", prompt: "medium shot of villager placing cloak on wet monk, compassion, rainy riverside, ancient China, cinematic, 8k" },
+                        { shot_id: 24, shot_type: "Over Shoulder", description: "村民A正面，过海通肩。", dialogue: "【村民A】早年间曾有一位神勇大将军治理过水患，嘉州古城至今还有一座治水的神庙。", ratio: "16:9", prompt: "over shoulder shot of villager speaking to monk, earnest expression, rainy ancient Chinese village, cinematic, 8k" },
+                        { shot_id: 25, shot_type: "Aerial", description: "俯瞰嘉州古城。", ratio: "21:9", prompt: "aerial view of ancient Jiazhou city, traditional Chinese architecture, rivers surrounding, misty atmosphere, cinematic, 8k" },
+                        { shot_id: 26, shot_type: "Wide Shot", description: "赵昱古庙的大门，海通走进古庙。", ratio: "16:9", prompt: "wide shot of ancient temple gate, monk Haitong entering, weathered architecture, atmospheric lighting, cinematic, 8k" },
+                        { shot_id: 27, shot_type: "Over Shoulder / VFX", description: "穿过海通肩膀，看到墙，墙面上合成古画。赵昱斩蛟龙动画。", dialogue: "【庙守】这是我朝太宗皇帝册封的神勇大将军赵昱，相传隋朝时，他在此斩杀蛟龙，平定水患。", ratio: "16:9", prompt: "over shoulder shot of monk viewing ancient mural, painting coming to life showing general slaying dragon, magical atmosphere, cinematic, 8k" },
+                        { shot_id: 28, shot_type: "Dialogue", description: "海通与庙守对话。", dialogue: "【海通】蛟龙斩了，为何水患依旧？谁又能来庇护被水患侵害的百姓？", ratio: "16:9", prompt: "two shot of monk and temple keeper in dialogue, temple interior, incense smoke, dramatic lighting, cinematic, 8k" },
+                        { shot_id: 29, shot_type: "Wide / Insert", description: "海通走出庙门，望着远处依然狂暴的江水。一只蚂蚁在台阶的积水中挣扎，爬上一块小石头，得以幸存。", ratio: "16:9", prompt: "wide shot of monk at temple entrance looking at raging river, insert of ant surviving on small rock in puddle, metaphor, cinematic, 8k" },
+                        { shot_id: 30, shot_type: "Close Up", description: "海通眼中闪过一道光，猛然抬头看向凌云山。", dialogue: "【海通喃喃自语】崖壁……唯有这山石坚硬的崖壁，万古不变。", ratio: "4:3", prompt: "close up of monk face, sudden realization in eyes, looking up at mountain, divine inspiration moment, cinematic lighting, 8k" }
+                    ]
+                },
+                {
+                    title: "发愿·建造大佛治理水患",
+                    shots: [
+                        { shot_id: 31, shot_type: "Wide Shot", description: "雨中乌云闪电，波涛汹涌。", ratio: "21:9", prompt: "dramatic wide shot of storm over river, lightning, turbulent waves, ominous atmosphere, cinematic, 8k" },
+                        { shot_id: 32, shot_type: "Back Shot", description: "晨雾弥漫，海通背影立于凌云山，远眺离堆。", dialogue: "【海通独白】人间的安乐，转瞬即逝，多有苦难。一到夏季，船毁人亡的事情不断发生。师父，若我独坐山洞，无力改变这一切，修行又有何用。", ratio: "21:9", prompt: "back shot of monk standing on Lingyun Mountain at dawn, mist, contemplating river below, epic landscape, cinematic, 8k" },
+                        { shot_id: 33, shot_type: "Insert", description: "海通手中紧握锦囊。海通从锦囊中拿出第一个纸条，打开，上面写着「发愿」。", ratio: "1:1", prompt: "insert shot of monk hands opening silk pouch, unfolding paper with Chinese characters '发愿' (make a vow), dramatic lighting, cinematic, 8k" },
+                        { shot_id: 34, shot_type: "Medium Shot", description: "海通在一片竹林中行走。竹叶在风中轻轻摇曳。", ratio: "16:9", prompt: "medium shot of monk walking through bamboo forest, leaves swaying in wind, dappled sunlight, serene atmosphere, cinematic, 8k" },
+                        { shot_id: 35, shot_type: "Two Shot", description: "竹林下有一位老年僧人正在扫地，海通入画，站定。海通与扫地僧面对而立。", dialogue: "【海通】我发愿要改变嘉州水患，但是我心中有一个疑惑，不知道我是否真的能够做到。", ratio: "16:9", prompt: "two shot of young monk meeting elderly sweeping monk in bamboo forest, spiritual encounter, soft lighting, cinematic, 8k" },
+                        { shot_id: 36, shot_type: "Over Shoulder", description: "海通过肩，扫地僧正面。", dialogue: "【老年僧人】境随心转，你若以名利心行事，处处便是名利场；以怨恨心争斗心行事，处处就是是非战场；若以友善慈悲之心行事，此地可成乐善之地。你既有了心中所愿，就去做好了。", ratio: "16:9", prompt: "over shoulder shot of wise elderly monk speaking, serene expression, bamboo forest background, ethereal light, cinematic, 8k" },
+                        { shot_id: 37, shot_type: "Nature Insert", description: "竹叶在风中摇曳、飘落；竹林中的小水洼，水面上漾起波纹；一朵兰花在风中摇曳；蝴蝶飞过两人身边。", ratio: "16:9", prompt: "nature montage: bamboo leaves falling, ripples in forest pool, orchid swaying, butterfly flying past, poetic Chinese aesthetic, cinematic, 8k" },
+                        { shot_id: 38, shot_type: "Close Up", description: "海通神情渐明，恍若醍醐灌顶。", ratio: "4:3", prompt: "close up of monk face, moment of enlightenment, peaceful realization, soft bamboo forest light, cinematic, 8k" },
+                        { shot_id: 39, shot_type: "Aerial / VFX", description: "云雾缭绕间，凌云山静卧于江河之上，形如一尊天然卧佛。三江汇流之处，正是卧佛心口。海通站在江心岛，背影站在江对岸，看着远处的卧佛。", ratio: "21:9", prompt: "aerial VFX shot revealing Lingyun Mountain as natural reclining Buddha shape, three rivers at heart position, monk viewing from island, mystical, cinematic, 8k" },
+                        { shot_id: 40, shot_type: "Wide Shot", description: "三江汇合处的浪花打在崖壁上。", ratio: "21:9", prompt: "wide shot of waves crashing against cliff at three rivers confluence, dramatic spray, powerful nature, cinematic, 8k" },
+                        { shot_id: 41, shot_type: "Medium Shot", description: "海通坐在船上，船上有工匠和富商，大家都看着崖壁。", dialogue: "【海通】我想在凌云山崖上修建一座弥勒大佛。", ratio: "16:9", prompt: "medium shot of monk on boat with craftsmen and merchants, all looking at cliff face, discussion scene, ancient China, cinematic, 8k" },
+                        { shot_id: 42, shot_type: "Reaction", description: "工匠和商人的反应。", dialogue: "【工匠A】法师莫非在做梦？把这山凿成佛？这得要多少人！多少钱！多少年！", ratio: "16:9", prompt: "reaction shots of skeptical craftsmen and merchants on boat, disbelief expressions, ancient Chinese setting, cinematic, 8k" },
+                        { shot_id: 43, shot_type: "Close Up", description: "海通正侧面表情。", dialogue: "【海通】我朝在各处都有建造供奉弥勒大佛的造像，寓意着天下太平、人民安乐，这尊弥勒大佛与山等高，面江而坐，借佛力镇水，可护佑苍生。", ratio: "4:3", prompt: "close up side profile of determined monk Haitong, passionate speech, boat on river, cinematic lighting, 8k" },
+                        { shot_id: 44, shot_type: "POV", description: "崖壁的主观镜头。", dialogue: "【商人】此事惊世骇俗！就算富可敌国，也未必能完成。巨佛岂能说建就建？", ratio: "21:9", prompt: "POV shot looking up at massive cliff face from boat, overwhelming scale, dramatic perspective, cinematic, 8k" },
+                        { shot_id: 45, shot_type: "VFX", description: "火烧崖壁、山崩地裂、波涛汹涌。想象画面。", dialogue: "【工匠B】相传李冰父子，开凿离堆就是将一座山用人力分开，非常人可以完成。法师若有此愿，必得集结数万人才可完成。", ratio: "21:9", prompt: "VFX visualization of mountain being carved with fire, rocks splitting, epic ancient engineering, dramatic, cinematic, 8k" },
+                        { shot_id: 46, shot_type: "Close Up", description: "海通坚定表情。", dialogue: "【海通】起一念善心，行万里宏愿，没有钱财，我就一分一厘地去化缘。", ratio: "4:3", prompt: "close up of monk with unwavering determination, eyes full of resolve, dramatic lighting, cinematic, 8k" },
+                        { shot_id: 47, shot_type: "Medium Shot", description: "老工匠沉默片刻，捡起一块石头，重重投进江里。", dialogue: "【老工匠】法师敢修，我就敢凿！", ratio: "16:9", prompt: "medium shot of elderly craftsman throwing stone into river, making commitment, emotional moment, cinematic, 8k" },
+                        { shot_id: 48, shot_type: "Insert", description: "水面泛起涟漪。", ratio: "16:9", prompt: "insert shot of ripples expanding on river surface, symbolic of beginning, peaceful moment, cinematic, 8k" },
+                        { shot_id: 49, shot_type: "Wide Shot", description: "众人站在江边，默然面对凌云山（山势高大，众人都显得十分渺小）。", ratio: "21:9", prompt: "wide shot of small group of people standing at riverbank facing massive Lingyun Mountain, human vs nature scale, epic, cinematic, 8k" }
+                    ]
+                },
+                {
+                    title: "笃行·十年万里化缘",
+                    shots: [
+                        { shot_id: 50, shot_type: "Wide Shot", description: "海通披布袍，背起化缘行囊，步入万水千山。", ratio: "21:9", prompt: "wide shot of monk with alms bag beginning long journey, epic mountain landscape, lone figure on path, cinematic, 8k" },
+                        { shot_id: 51, shot_type: "Montage", description: "海通化缘四处碰壁（三个场景：闭门羹等）。", ratio: "16:9", prompt: "montage of monk being rejected while seeking donations, doors closing, people turning away, hardship journey, cinematic, 8k" },
+                        { shot_id: 52, shot_type: "Medium Shot", description: "纨绔子弟将铜钱丢进脏水沟。", dialogue: "【纨绔子弟戏谑】老和尚，想要这笔钱修佛？行啊。佛渡众生，你渡得过这脏水吗？", ratio: "16:9", prompt: "medium shot of arrogant young nobleman throwing coins into dirty gutter, mocking monk, ancient Chinese street, cinematic, 8k" },
+                        { shot_id: 53, shot_type: "Insert / Close Up", description: "锦囊掉进泥水里，海通捡起，擦掉泥水。海通打开师父的第二个纸条，上面写着「笃行」。", ratio: "1:1", prompt: "insert of silk pouch in muddy water, monk picking it up, revealing paper with '笃行' (perseverance), emotional moment, cinematic, 8k" },
+                        { shot_id: 54, shot_type: "Medium Shot", description: "海通面容平静，看了一眼远方，弯腰，赤手伸进脏水，一枚枚捡起铜钱。", dialogue: "【海通】人心有净垢之念，但这铜钱本无贵贱之分。这每一文钱，都会成为大佛的一块骨肉。", ratio: "16:9", prompt: "medium shot of humble monk calmly picking coins from dirty water, dignified despite humiliation, powerful moment, cinematic, 8k" },
+                        { shot_id: 55, shot_type: "Animation / Map", description: "十年万里，风雨兼程，海通足迹遍布四川、江西、河南、湖南、湖北（武当山）、安徽（九华山）、江苏。每一步都是心愿的坚持。", ratio: "21:9", prompt: "animated map showing 10-year journey across China, footsteps marking path through Sichuan, Jiangxi, Henan, Hunan, Hubei, Anhui, Jiangsu, epic montage, cinematic, 8k" },
+                        { shot_id: 56, shot_type: "Montage", description: "江上行船，风浪起伏；荒野中，野狗追逐；海通抱着钱箱蜷伏古松之下，森林中有虎啸传来。", ratio: "16:9", prompt: "montage of journey hardships: boat in storm, wild dogs chasing, monk sheltering under pine with money box, tiger roar in forest, survival, cinematic, 8k" },
+                        { shot_id: 57, shot_type: "Wide Shot", description: "凌云山崖壁，工匠手持绳索，悬身六七十米高，随风摇晃。", ratio: "16:9", prompt: "wide shot of craftsmen suspended on ropes 70 meters up cliff face, dangerous work, wind swaying, epic scale construction, cinematic, 8k" },
+                        { shot_id: 58, shot_type: "Medium Shot", description: "海通与工匠ABC在河对岸，指着崖壁对话，商讨大佛建造的位置。", dialogue: "【工匠A】法师，确定是在这个位置吗？【海通】对，就要建造在栖霞峰的崖壁上，正好面对着三江汇合处。", ratio: "16:9", prompt: "medium shot of monk and craftsmen discussing on riverbank, pointing at cliff, planning session, ancient China, cinematic, 8k" },
+                        { shot_id: 59, shot_type: "Insert", description: "海通手中拿着佛像和天王的稿纸。旁边的桌子上摆着精心制作的佛像模型。", ratio: "4:3", prompt: "insert of monk hands holding Buddha statue design drawings, small model on table, planning details, candlelight, cinematic, 8k" },
+                        { shot_id: 60, shot_type: "Medium Shot", description: "海通与工匠，于灯下细细推敲佛像规制。工匠A执笔勾画。", dialogue: "【工匠A】依法师之意，佛首当高四丈九尺，宽三丈三尺；顶髻计一千零五十又一，佛耳长二丈三尺余，佛鼻一丈八尺六寸。", ratio: "16:9", prompt: "medium shot of monk and craftsmen studying plans by lamplight, drawing details, collaborative design session, cinematic, 8k" },
+                        { shot_id: 61, shot_type: "Reaction", description: "工匠B正侧面，震惊表情。", dialogue: "【工匠B】佛耳二丈三尺，得有四个人高，鼻子也超过三个人的身高！", ratio: "4:3", prompt: "close up of craftsman amazed expression hearing Buddha dimensions, awe at scale, lamplight, cinematic, 8k" },
+                        { shot_id: 62, shot_type: "Close Up", description: "海通独白表情。", dialogue: "【海通独白】当我用十年时间化缘，终于募捐来第一笔钱财，但是总是有人在问我，为何要在崖壁上修建一个如此高大雄伟的弥勒佛。我的回答是我要在此，在嘉州在凌云山上建造一片人间乐土。", ratio: "4:3", prompt: "close up of monk Haitong, reflective expression, speaking of vision, warm lamplight, determined eyes, cinematic, 8k" }
+                    ]
+                },
+                {
+                    title: "秉持·开山第一锤",
+                    shots: [
+                        { shot_id: 63, shot_type: "Wide Shot", description: "工匠绑竹子脚手架。", ratio: "16:9", prompt: "wide shot of craftsmen building bamboo scaffolding on cliff face, intricate construction, ancient engineering, cinematic, 8k" },
+                        { shot_id: 64, shot_type: "Insert", description: "海通的侍者捧着香炉，香炉中升起袅袅的烟雾。", ratio: "4:3", prompt: "insert of attendant holding incense burner, smoke rising, ceremonial moment, cinematic, 8k" },
+                        { shot_id: 65, shot_type: "Medium Shot", description: "海通法师站在人群中心，神情庄重。", ratio: "16:9", prompt: "medium shot of monk Haitong standing center of crowd, solemn expression, ceremonial gathering, cinematic, 8k" },
+                        { shot_id: 66, shot_type: "Insert", description: "海通拿起一支毛笔；在崖壁上写下祈福的梵文。", ratio: "1:1", prompt: "insert of monk writing Sanskrit blessing on cliff face with brush, sacred calligraphy, ceremonial moment, cinematic, 8k" },
+                        { shot_id: 67, shot_type: "Medium Shot", description: "一名年轻工匠举起大锤，敲下凌云山造像的第一锤，石屑飞溅。", ratio: "16:9", prompt: "medium shot of young craftsman raising hammer, striking first blow on cliff, stone chips flying, historic moment, cinematic, 8k" },
+                        { shot_id: 68, shot_type: "Wide Shot", description: "海通站在河对岸，和人群观看大佛建造。", ratio: "21:9", prompt: "wide shot of monk and crowd watching construction from opposite riverbank, scaffolding on cliff, epic undertaking begins, cinematic, 8k" },
+                        { shot_id: 69, shot_type: "Wide Shot", description: "数百工匠齐声凿刻山石，锤声此起彼伏，甚至盖过三江的浪涛声。", ratio: "21:9", prompt: "wide shot of hundreds of craftsmen carving mountain simultaneously, rhythmic hammering, epic construction scene, cinematic, 8k" },
+                        { shot_id: 70, shot_type: "Wide Shot", description: "山崖被一锤劈开，巨石轰然坠下；江面溅起数丈高浪花；巨石落入江水，水中的鱼群骤然散开。", ratio: "21:9", prompt: "dramatic wide shot of boulder falling from cliff into river, massive splash, fish scattering, powerful moment, cinematic, 8k" },
+                        { shot_id: 71, shot_type: "Medium Shot", description: "海通走在建筑工地上，有人受伤，资金也越来越少，周围的人质疑纷纷，海通听到后摇头不语。", ratio: "16:9", prompt: "medium shot of monk walking through construction site, injured workers, worried expressions, doubt spreading, monk silent, cinematic, 8k" },
+                        { shot_id: 72, shot_type: "Insert", description: "海通打开第三个纸条，上面写着「秉持」。", ratio: "1:1", prompt: "insert of monk opening third paper note showing '秉持' (perseverance), meaningful moment, cinematic, 8k" },
+                        { shot_id: 73, shot_type: "Wide Shot", description: "工地上尘土飞扬。海通在脚手架上指挥，不再是那个打坐的僧人，更像是一个统帅。", ratio: "16:9", prompt: "wide shot of monk commanding from scaffolding, dust flying, transformed into leader figure, construction chaos, cinematic, 8k" },
+                        { shot_id: 74, shot_type: "Medium Shot", description: "夜晚，大雨如注。脚手架摇摇欲坠。海通带头冲上去加固绳索。闪电照亮了他坚毅的脸庞。", ratio: "16:9", prompt: "dramatic medium shot of monk in storm reinforcing scaffolding ropes, rain pouring, lightning illuminating determined face, hero moment, cinematic, 8k" },
+                        { shot_id: 75, shot_type: "Underwater / VFX", description: "江中乱石越积越多，原本深流的河道被填浅，水下凹凸的岩礁逐渐平整。", ratio: "16:9", prompt: "underwater VFX shot showing rocks accumulating in river, riverbed changing, water flow calming, visual progress, cinematic, 8k" },
+                        { shot_id: 76, shot_type: "Wide Shot", description: "水流由奔腾呼啸，逐渐缓和，江面出现平静涟漪。", ratio: "21:9", prompt: "wide shot of river transforming from turbulent to calm, peaceful ripples, progress visible, hopeful atmosphere, cinematic, 8k" },
+                        { shot_id: 77, shot_type: "Wide Shot", description: "大佛的头部轮廓即将从山岩中显现。", ratio: "21:9", prompt: "wide shot of Buddha head outline emerging from mountain rock, epic reveal moment, construction progress, cinematic, 8k" }
+                    ]
+                },
+                {
+                    title: "利他·剜目明志",
+                    shots: [
+                        { shot_id: 78, shot_type: "Medium Shot", description: "海通在工地旁的茅草屋中，拿着施工图纸，与工匠交流施工进度。", ratio: "16:9", prompt: "medium shot of monk in thatched hut reviewing construction plans with craftsmen, working session, cinematic, 8k" },
+                        { shot_id: 79, shot_type: "Medium Shot", description: "来人喊声带怒，是一名小郡吏带着一名随从。郡吏带着随从从门口进入，带起一阵尘土。", dialogue: "【郡吏】大唐连年征战，水患频发，你这个和尚却把巨资浪费在凿石头上，不如充公赈灾或充作军费。", ratio: "16:9", prompt: "medium shot of angry government official entering hut with attendant, dust rising, confrontational entrance, tension, cinematic, 8k" },
+                        { shot_id: 80, shot_type: "Medium Shot", description: "海通禅师缓缓转身，面容平静，目光直视郡吏。", dialogue: "【海通】此财取之于民，用之于公，只为镇守三江，护佑百姓。我自有菩萨知我，天地可鉴。", ratio: "16:9", prompt: "medium shot of monk slowly turning, calm face, direct gaze at official, dignified defiance, cinematic, 8k" },
+                        { shot_id: 81, shot_type: "Close Up", description: "郡吏逼近海通，面部特写，嘴角带着讥讽的冷笑。", dialogue: "【郡吏】你可知，不依国法，佛法难兴。人为财死，鸟为食亡，哪个信你募得如此巨资分文不私取？", ratio: "4:3", prompt: "close up of corrupt official face, sneering expression, threatening posture, antagonist moment, cinematic, 8k" },
+                        { shot_id: 82, shot_type: "Two Shot", description: "海通与郡吏对峙，阳光从门口照射进来，海通笼罩在郡吏的影子里。", ratio: "16:9", prompt: "two shot confrontation, monk in official's shadow, sunlight from doorway, symbolic lighting, tense standoff, cinematic, 8k" },
+                        { shot_id: 83, shot_type: "Medium Shot", description: "海通突然盘腿坐下，神色平静得可怕。", dialogue: "【郡吏】怎么？愿意把钱财交付与我等？【海通】自目可剜，佛财难动！", ratio: "16:9", prompt: "medium shot of monk suddenly sitting cross-legged, terrifyingly calm expression, shocking declaration, cinematic, 8k" },
+                        { shot_id: 84, shot_type: "Close Up", description: "郡吏从震惊，变为语塞。", ratio: "4:3", prompt: "close up of official face transforming from shock to speechless horror, dramatic reaction, cinematic, 8k" },
+                        { shot_id: 85, shot_type: "Nature Insert", description: "空中的太阳被乌云遮蔽；水浪拍打岸边；山洞外的小鸟受到惊吓从枝头飞走。", ratio: "16:9", prompt: "nature montage: sun obscured by clouds, waves crashing shore, birds fleeing trees, ominous atmosphere, cinematic, 8k" },
+                        { shot_id: 86, shot_type: "Wide Shot", description: "官吏面容惊恐，仓皇逃走。", ratio: "16:9", prompt: "wide shot of officials fleeing in terror, running from hut, dramatic escape, cinematic, 8k" },
+                        { shot_id: 87, shot_type: "Medium Shot", description: "海通依然端坐。", ratio: "16:9", prompt: "medium shot of monk still sitting serenely, blood on face, unwavering resolve, powerful image, cinematic, 8k" },
+                        { shot_id: 88, shot_type: "Insert", description: "海通用沾着血的手摸索着打开师父的锦囊，拿出第四个纸条，上面写着「利他」。", dialogue: "【海通独白】世人只用俗眼看到钱财，我虽然失去了一只眼睛，视力受限，但我心中的慧眼越发明澈光亮，似乎看到了一片乐土即将浮现。", ratio: "1:1", prompt: "insert of bloodied hands opening silk pouch, fourth note showing '利他' (altruism), profound moment, cinematic, 8k" },
+                        { shot_id: 89, shot_type: "Insert", description: "一滴水滴入平静的水面，涟漪荡漾开，水面的莲花盛开，在风中摇曳。", ratio: "16:9", prompt: "insert of water drop creating ripples, lotus flower blooming on water surface, swaying in wind, poetic imagery, cinematic, 8k" },
+                        { shot_id: 90, shot_type: "Wide Shot", description: "山间云霭轻涌，层林如水墨晕开，远山朦胧。云雾与江河、山崖、工匠群形成宏大画面。", ratio: "21:9", prompt: "epic wide shot of misty mountains, ink wash aesthetic, river, cliffs, workers, grand vista like Chinese painting, cinematic, 8k" },
+                        { shot_id: 91, shot_type: "Wide Shot", description: "巨大的脚手架网络密布山体，工匠们的身影在其间忙碌穿梭。", ratio: "21:9", prompt: "wide shot of massive scaffolding network covering mountain, workers moving through like ants, epic scale, cinematic, 8k" },
+                        { shot_id: 92, shot_type: "Wide Shot", description: "数年后，崖顶佛首初显规模：顶围百尺，双目阔若二丈，巍峨庄严。", ratio: "21:9", prompt: "wide shot of Buddha head taking shape on cliff, massive scale emerging, majestic presence, years of progress, cinematic, 8k" },
+                        { shot_id: 93, shot_type: "Medium Shot", description: "年老的海通站在河滩对面，佛头逐渐出现。", ratio: "16:9", prompt: "medium shot of elderly monk Haitong viewing emerging Buddha head from riverbank, same position as youth, emotional callback, cinematic, 8k" }
+                    ]
+                },
+                {
+                    title: "圆寂·身归山河",
+                    shots: [
+                        { shot_id: 94, shot_type: "Wide Shot", description: "阴雨霏霏，大佛的建造已经停工，周围一片萧瑟。", ratio: "21:9", prompt: "wide shot of Buddha construction halted in rain, desolate atmosphere, scaffolding abandoned, melancholy scene, cinematic, 8k" },
+                        { shot_id: 95, shot_type: "Medium Shot", description: "数年后。大佛修到了肩部。海通躺在病榻上，形容枯槁。", dialogue: "【俗人】师父，您为何耗尽心血要建造大佛？【海通】我若独自修行可能成就我自己，若能以我一人之苦，换万民之安，这便是我心中的光明乐土。", ratio: "16:9", prompt: "medium shot of elderly dying monk Haitong on bed, gaunt appearance, speaking final wisdom, emotional scene, cinematic, 8k" },
+                        { shot_id: 96, shot_type: "Medium Shot", description: "海通打坐，小和尚跪在海通面前。", dialogue: "【小和尚哭泣】师父，佛还没修好，您怎么能走……【海通】不必悲伤。崖壁已开，山势已成。我不必看见，后人自会看见。我自知时日无多，我想再打开一个纸条。", ratio: "16:9", prompt: "medium shot of dying monk in meditation pose, young monk kneeling before him crying, farewell scene, emotional, cinematic, 8k" },
+                        { shot_id: 97, shot_type: "Close Up", description: "海通嘴角露出一丝微笑，手垂落。", ratio: "4:3", prompt: "close up of monk's serene smile, hand falling gently, peaceful passing, profound moment, cinematic, 8k" },
+                        { shot_id: 98, shot_type: "Insert", description: "海通已至弥留之际，小和尚帮他打开锦囊，念出「护生」。海通听闻微笑。", ratio: "1:1", prompt: "insert of young monk opening pouch for dying master, fifth note showing '护生' (protect life), final smile, touching moment, cinematic, 8k" },
+                        { shot_id: 99, shot_type: "Close Up", description: "小和尚捧着纸条和锦囊。", dialogue: "【小和尚】师父还有什么话留给我们？", ratio: "4:3", prompt: "close up of young monk holding notes and pouch, tearful, awaiting final words, emotional, cinematic, 8k" },
+                        { shot_id: 100, shot_type: "Medium Shot", description: "海通正面，禅坐中，低头而逝，身边放着那尊弥勒小像。", dialogue: "【海通】此心安处即乐土。（说完安然长逝）", ratio: "16:9", prompt: "medium shot of monk passing peacefully in meditation pose, small Maitreya statue beside him, final breath, profound, cinematic, 8k" },
+                        { shot_id: 101, shot_type: "Nature", description: "狂风骤雨，竹林狂摆；雨点拍打青苔下的岩石；禅窟之外，电光划破天幕，雷声震撼山谷。", ratio: "21:9", prompt: "dramatic nature sequence: storm winds in bamboo, rain on mossy rocks, lightning over meditation cave, thunder in valley, mourning nature, cinematic, 8k" },
+                        { shot_id: 102, shot_type: "Close Up", description: "雨水流淌过弥勒佛面部，仿佛大佛在流眼泪。", ratio: "4:3", prompt: "close up of rainwater flowing down Buddha statue face like tears, profound symbolism, mourning, cinematic, 8k" },
+                        { shot_id: 103, shot_type: "Wide Shot", description: "电光间显露大佛沉默而宏大的轮廓。", ratio: "21:9", prompt: "wide shot of massive Buddha silhouette revealed in lightning flash, silent and grand, dramatic atmosphere, cinematic, 8k" },
+                        { shot_id: 104, shot_type: "Time-lapse", description: "灵宝塔延时。", ratio: "16:9", prompt: "timelapse of Lingbao Pagoda through day and night cycles, seasons passing, enduring monument, cinematic, 8k" },
+                        { shot_id: 105, shot_type: "Montage", description: "海通的灵塔在风雨中矗立。大佛工程因战乱停工。脚手架腐烂，藤蔓爬满未完成的佛身。", ratio: "21:9", prompt: "montage of monk's memorial pagoda standing through storms, abandoned construction, rotting scaffolding, vines growing on unfinished Buddha, time passing, cinematic, 8k" },
+                        { shot_id: 106, shot_type: "Wide Shot", description: "暴雨停息，空山萧瑟，烟月静照。江河、山川与未完工的佛像交相辉映。", ratio: "21:9", prompt: "wide shot of mountain after storm, moonlight through mist, river and unfinished Buddha statue in harmony, melancholic beauty, cinematic, 8k" }
+                    ]
+                },
+                {
+                    title: "传承·三代宏愿 / 和合·乐土天成",
+                    shots: [
+                        { shot_id: 107, shot_type: "Wide Shot", description: "晴空万里，江面波光粼粼，船只缓缓驶入三江汇合处。章仇兼琼站在船头，目光凝视佛像。", ratio: "21:9", prompt: "wide shot of sunny day, sparkling river, boat approaching three rivers confluence, official Zhang Qiu Jianqiong at bow viewing Buddha, cinematic, 8k" },
+                        { shot_id: 108, shot_type: "Wide Shot", description: "云海之中透出佛光，凌云山巅，硕大的弥勒佛头巍然矗立。", ratio: "21:9", prompt: "wide shot of Buddha light through sea of clouds, massive Maitreya Buddha head on Lingyun Mountain summit, divine atmosphere, cinematic, 8k" },
+                        { shot_id: 109, shot_type: "Medium Shot", description: "章仇兼琼来到海通修行的山洞，山洞中供奉着海通当年制造的小弥勒佛，上香。", dialogue: "【章仇兼琼】海通法师还有留下什么东西吗？【海通弟子】这是海通禅师多年前修佛安澜之事，就等待有缘人继续完成禅师的心愿。", ratio: "16:9", prompt: "medium shot of official offering incense in cave before small Maitreya statue, meeting monk's disciple, sacred moment, cinematic, 8k" },
+                        { shot_id: 110, shot_type: "Insert", description: "章仇兼琼看到前面五个纸条，打开第六个，上面写着「和合共行」。", ratio: "1:1", prompt: "insert of official viewing six paper notes, opening final one showing '和合共行' (unite and proceed together), revelation moment, cinematic, 8k" },
+                        { shot_id: 111, shot_type: "Back Shot", description: "章仇兼琼站在未完成的佛像前，背影。", dialogue: "【章仇兼琼】愿以二十万两俸禄率先接续未竟之功。", ratio: "21:9", prompt: "back shot of official standing before unfinished Buddha statue, making pledge, epic scale, commitment moment, cinematic, 8k" },
+                        { shot_id: 112, shot_type: "Wide Shot", description: "老工匠重返峭壁，锤声再起，山谷回响。", ratio: "21:9", prompt: "wide shot of elderly craftsmen returning to cliff, hammering resuming, echoes in valley, work continuing, cinematic, 8k" },
+                        { shot_id: 113, shot_type: "VFX", description: "半身大佛雄伟初显，山与佛融为一体（动画，大佛修建至膝盖）。", ratio: "21:9", prompt: "VFX shot of half-built Buddha emerging magnificently, mountain and Buddha becoming one, construction to knee level, progress, cinematic, 8k" },
+                        { shot_id: 114, shot_type: "Wide Shot", description: "章仇兼琼乘舟缓缓而下。唐代嘉州古城空镜延时；长安城的大火；唐代军队骑兵镜头。", ratio: "21:9", prompt: "wide shot of official departing by boat, timelapse of Tang dynasty Jiazhou city, fire in Chang'an, cavalry footage, historical montage, cinematic, 8k" },
+                        { shot_id: 115, shot_type: "Medium Shot", description: "韦皋站在九曲栈道上，望着半身大佛巍然矗立。", dialogue: "【韦皋】贞元初，天子命我守兹坤隅。从莲花座上至于膝，工未就者几百尺。天子下令继续建造，我愿捐俸五十万，重启佛工。", ratio: "16:9", prompt: "medium shot of General Wei Gao on winding mountain path, viewing half-built Buddha, making pledge, historical figure, cinematic, 8k" },
+                        { shot_id: 116, shot_type: "Two Shot", description: "幕僚与韦皋对话。", dialogue: "【幕僚】大人，边境战事吃紧，军费尚且不足。若此时拿出五十万俸禄修佛，朝中必有奸佞弹劾您！【韦皋】战事要防，但这嘉州的水患也要治理。海通师父剜目建造的大佛，我韦皋便是耗尽家产，也要把它修完！", ratio: "16:9", prompt: "two shot of general and worried advisor in discussion, tension, determination winning over caution, cinematic, 8k" },
+                        { shot_id: 117, shot_type: "Wide Shot", description: "工地恢弘壮阔；崖壁上工人建造大佛。", ratio: "21:9", prompt: "epic wide shot of massive construction site, workers on cliff building Buddha, grand scale operation, cinematic, 8k" },
+                        { shot_id: 118, shot_type: "Wide Shot", description: "晨光初洒，金箔覆盖佛身，朱砂点唇，宝相庄严渐显。", ratio: "21:9", prompt: "wide shot of dawn light on Buddha, gold leaf covering, vermillion on lips, majestic appearance emerging, completion approaching, cinematic, 8k" },
+                        { shot_id: 119, shot_type: "Wide Shot", description: "弥勒佛面容慈悲含笑，熠熠生辉，两尊护法神将相伴左右。", ratio: "21:9", prompt: "wide shot of completed Maitreya Buddha face, compassionate smile, radiant, two guardian deities flanking, magnificent, cinematic, 8k" },
+                        { shot_id: 120, shot_type: "Aerial", description: "贞元十九年（803年），大佛阁轮廓显现。大佛阁全景+嘉州古城及三江汇合全景。", ratio: "21:9", prompt: "aerial shot of completed Buddha pavilion (803 AD), panorama of Jiazhou city and three rivers confluence, epic completion, cinematic, 8k" },
+                        { shot_id: 121, shot_type: "Aerial / VFX", description: "三江汇流，江水缓缓环绕山脚，乐山大佛巍峨端坐。从江面升起，看到岷江、大渡河、青衣江汇入，展示整个巴蜀大地的贸易和连接。", ratio: "21:9", prompt: "epic aerial VFX shot rising from river, three rivers confluence, Leshan Giant Buddha seated majestically, map expanding to show Shu trade routes, cinematic, 8k" },
+                        { shot_id: 122, shot_type: "Full Shot", description: "海通站立全息影像（与开篇呼应）。", dialogue: "【海通】乐山大佛的故事今天就讲到这里吧。人该如何完成自己的梦想？我的回答是：勇敢的走出第一步，持之以恒的去坚持！", ratio: "16:9", prompt: "holographic projection of monk Haitong standing, ethereal glow, same as opening, circular narrative, cinematic, 8k" },
+                        { shot_id: 123, shot_type: "VFX Sequence", description: "从银河系拉开是大佛的眼睛，大佛拉开是三江汇合，三江汇合拉开是中国和世界地图，标出敦煌、马图拉、巴米扬的位置，再拉开是地球，再拉开是海通的眼睛，再拉开是海通的脸，再拉开是海通行走，再拉开是大佛全身。粒子汇集成「我心向往，乐山乐山」。", ratio: "21:9", prompt: "epic VFX sequence: galaxy to Buddha eye, to three rivers, to world map showing Dunhuang/Mathura/Bamiyan, to Earth, to monk's eye, to monk walking, to full Buddha, particles forming '我心向往，乐山乐山', cosmic journey, cinematic, 8k" }
+                    ]
+                }
+            ]
+        };
+
+        let showPrompts = false;
+        let totalShots = 0;
+
+        function init() {
+            const container = document.getElementById('storyboardContainer');
+            container.innerHTML = '';
+            totalShots = 0;
+
+            storyboardData.chapters.forEach((chapter, chapterIndex) => {
+                const chapterDiv = document.createElement('div');
+                chapterDiv.innerHTML = `<div class="chapter-title">第${chapterIndex + 1}章 ${chapter.title}</div>`;
+                
+                const grid = document.createElement('div');
+                grid.className = 'storyboard-grid';
+                grid.id = `chapter-${chapterIndex}`;
+
+                chapter.shots.forEach(shot => {
+                    totalShots++;
+                    grid.appendChild(createShotCard(shot));
+                });
+
+                chapterDiv.appendChild(grid);
+                container.appendChild(chapterDiv);
+            });
+
+            document.getElementById('metaShots').textContent = totalShots;
+        }
+
+        function createShotCard(shot) {
+            const card = document.createElement('div');
+            card.className = 'shot-card' + (showPrompts ? ' show-prompt' : '');
+            card.dataset.shotId = shot.shot_id;
+
+            const shotNumber = String(shot.shot_id).padStart(3, '0');
+
+            card.innerHTML = `
+                <div class="shot-header">
+                    <span class="shot-number">SHOT ${shotNumber}</span>
+                    <div class="shot-badges">
+                        <span class="shot-type">${shot.shot_type || 'Shot'}</span>
+                    </div>
+                </div>
+                <div class="shot-media-container">
+                    <div class="shot-actions">
+                        <button class="action-btn" title="Generate" onclick="generateShot(${shot.shot_id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        </button>
+                        <button class="action-btn" title="Video" onclick="generateVideo(${shot.shot_id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /></svg>
+                        </button>
+                    </div>
+                    <div class="shot-image-placeholder">
+                        <img src="https://picsum.photos/seed/shot${shot.shot_id}/640/360" alt="Shot ${shotNumber}">
+                        <div class="placeholder-overlay">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                            <span>Regenerate</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="shot-content">
+                    <p class="shot-description">${shot.description || ''}</p>
+                    ${shot.dialogue ? `<div class="shot-dialogue">${shot.dialogue}</div>` : ''}
+                    <div class="shot-meta">
+                        <span class="shot-meta-item"><strong>Ratio:</strong> ${shot.ratio || '16:9'}</span>
+                        <span class="shot-meta-item"><strong>Type:</strong> ${shot.shot_type || '-'}</span>
+                    </div>
+                    ${shot.prompt ? `<div class="shot-prompt">${shot.prompt}</div>` : ''}
+                </div>
+            `;
+
+            return card;
+        }
+
+        function setView(view) {
+            const grids = document.querySelectorAll('.storyboard-grid');
+            const buttons = document.querySelectorAll('.view-toggle button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            grids.forEach(grid => {
+                if (view === 'list') grid.classList.add('list-view');
+                else grid.classList.remove('list-view');
+            });
+        }
+
+        function toggleAllPrompts() {
+            showPrompts = !showPrompts;
+            document.querySelectorAll('.shot-card').forEach(card => {
+                card.classList.toggle('show-prompt', showPrompts);
+            });
+            event.target.closest('.toolbar-btn').classList.toggle('active', showPrompts);
+        }
+
+        function generateShot(shotId) {
+            const card = document.querySelector(`[data-shot-id="${shotId}"]`);
+            const container = card.querySelector('.shot-media-container');
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = '<div class="loading-spinner"></div><div class="loading-text">Generating...</div>';
+            container.appendChild(overlay);
+            setTimeout(() => overlay.remove(), 2000);
+        }
+
+        function generateVideo(shotId) {
+            const card = document.querySelector(`[data-shot-id="${shotId}"]`);
+            const container = card.querySelector('.shot-media-container');
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = '<div class="loading-spinner"></div><div class="loading-text">Generating Video...</div>';
+            container.appendChild(overlay);
+            setTimeout(() => overlay.remove(), 3000);
+        }
+
+        function regenerateAll() {
+            if (confirm(`Generate all ${totalShots} shots? This may take a while.`)) {
+                console.log('Generating all shots...');
+            }
+        }
+
+        function exportJSON() {
+            const dataStr = JSON.stringify(storyboardData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '千年大佛_storyboard.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        init();
+    </script>
+</body>
+</html>
