@@ -5,33 +5,56 @@ description: 查询 Dreamina 生成任务结果，获取图片/视频下载链�
 
 # 结果查询工具
 
-## API 调用
-```bash
-curl 'https://jimeng.jianying.com/mweb/v1/get_history_by_ids?aid=513695&device_platform=web&region=cn' \
-  -H 'Content-Type: application/json' \
-  -H 'accept: application/json, text/plain, */*' \
-  -H 'appid: 513695' \
-  -H 'appvr: 8.4.0' \
-  -H 'pf: 3' \
-  -H 'lan: zh-Hans' \
-  -H 'loc: cn' \
-  -H 'origin: https://jimeng.jianying.com' \
-  -H 'referer: https://jimeng.jianying.com/ai-tool/generate?type=image' \
-  -H 'Cookie: <认证cookie>' \
-  -d '{"submit_ids":["<submit_id>"]}'
+## API 端点
+```
+POST https://jimeng.jianying.com/mweb/v1/get_history_by_ids
 ```
 
-## 参数说明
-| 字段 | 类型 | 必填 | 说明 |
-|---|---|---|---|
-| submit_ids | array | 是 | 提交ID数组，支持批量查询 |
+## Python 示例
+
+```python
+import requests
+import hashlib
+import time
+
+def generate_sign(uri_path):
+    device_time = int(time.time())
+    sign_str = f"9e2c|{uri_path[-7:]}|7|5.8.0|{device_time}||11ac"
+    sign = hashlib.md5(sign_str.encode()).hexdigest()
+    return sign, device_time
+
+def query_result(sessionid, history_ids):
+    uri = "/mweb/v1/get_history_by_ids"
+    sign, device_time = generate_sign(uri)
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Appid": "513695",
+        "Appvr": "5.8.0",
+        "Pf": "7",
+        "Origin": "https://jimeng.jianying.com",
+        "Referer": "https://jimeng.jianying.com",
+        "Cookie": f"sessionid={sessionid}",
+        "Device-Time": str(device_time),
+        "Sign": sign,
+        "Sign-Ver": "1"
+    }
+    
+    resp = requests.post(
+        f"https://jimeng.jianying.com{uri}",
+        params={"aid": 513695, "device_platform": "web", "region": "CN"},
+        headers=headers,
+        json={"history_ids": history_ids, "http_common_info": {"aid": 513695}}
+    )
+    return resp.json()
+```
 
 ## 响应结构 - 图片
 ```json
 {
   "ret": "0",
   "data": {
-    "<submit_id>": {
+    "<history_id>": {
       "status": 50,
       "item_list": [{
         "image": {
@@ -54,7 +77,7 @@ curl 'https://jimeng.jianying.com/mweb/v1/get_history_by_ids?aid=513695&device_p
 {
   "ret": "0",
   "data": {
-    "<submit_id>": {
+    "<history_id>": {
       "status": 50,
       "item_list": [{
         "video": {
@@ -74,45 +97,50 @@ curl 'https://jimeng.jianying.com/mweb/v1/get_history_by_ids?aid=513695&device_p
 
 ## 任务状态
 | status | 说明 |
-|---|---|
-| 10 | 排队中 |
-| 20 | 生成中 |
+|--------|------|
+| 20 | 队列中 |
+| 42 | 处理中 |
+| 45 | 处理中(中间状态) |
 | 50 | 已完成 |
-| -1 | 失败 |
+| 30 | 失败 |
 
-## 下载资源
-```bash
-# 图片：从 item_list[].image.large_images[].image_url 获取
-curl -o output.png '<image_url>'
+## 轮询示例
 
-# 视频：从 item_list[].video.video_resource.video_url 获取
-curl -o output.mp4 '<video_url>'
+```python
+import time
+
+def wait_for_result(sessionid, history_id, max_attempts=30, interval=3):
+    for i in range(max_attempts):
+        result = query_result(sessionid, [history_id])
+        data = result.get('data', {}).get(history_id, {})
+        status = data.get('status')
+        
+        if status == 50:
+            item = data['item_list'][0]
+            if 'image' in item:
+                return item['image']['large_images'][0]['image_url']
+            elif 'video' in item:
+                return item['video']['video_resource']['video_url']
+        elif status == 30:
+            raise Exception(f"Generation failed: {data.get('fail_msg')}")
+        
+        time.sleep(interval)
+    
+    raise Exception("Timeout waiting for result")
 ```
 
-## 完整流程示例
-```bash
-# 1. 提交生成任务
-SUBMIT_ID=$(uuidgen)
-curl -X POST 'https://dreamina-agent-operation.bytedance.net/dreamina/mcp/v1/image_generate' \
-  -H 'Content-Type: application/json' \
-  -H 'cookie: <cookie>' \
-  -d "{\"generate_type\":\"text2imageV2\",\"prompt\":\"...\",\"submit_id\":\"$SUBMIT_ID\"}"
+## 下载资源
 
-# 2. 轮询查询结果（间隔3-5秒）
-curl 'https://jimeng.jianying.com/mweb/v1/get_history_by_ids?aid=513695&device_platform=web&region=cn' \
-  -H 'Content-Type: application/json' \
-  -H 'appid: 513695' \
-  -H 'pf: 3' \
-  -H 'Cookie: <cookie>' \
-  -d "{\"submit_ids\":[\"$SUBMIT_ID\"]}"
-
-# 3. status=50 后下载
-curl -o result.png '<image_url>'
+```python
+def download_file(url, output_path):
+    resp = requests.get(url, timeout=60)
+    with open(output_path, 'wb') as f:
+        f.write(resp.content)
+    return len(resp.content)
 ```
 
 ## 注意事项
-- 图片/视频 URL 带签名，有过期时间（约1-2小时）
+- 图片/视频 URL 带签名，约 1-2 小时过期
 - 建议生成后立即下载
-- 支持批量查询多个 submit_id
-- 轮询间隔建议 3-5 秒
-- 视频生成时间较长，建议 10-30 秒轮询
+- 支持批量查询多个 history_id
+- 图片轮询间隔 3 秒，视频 5-10 秒
