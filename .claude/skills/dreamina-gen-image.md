@@ -200,6 +200,11 @@ curl -X POST 'https://dreamina-agent-operation.bytedance.net/dreamina/mcp/v1/ima
 21:9, 16:9, 3:2, 4:3, 1:1, 3:4, 2:3, 9:16
 
 ## 默认行为
-- 未指定数量时生成 **1张**
+- 每次生成会返回 **4张** 图片变体（item_list数组）
 - 4.x 模型使用 2K 分辨率
 - 3.x 模型使用 1K 分辨率
+
+## 重要提示
+- 即梦每次生成会返回4张不同变体的图片
+- 查询结果时需要遍历 `item_list` 数组获取所有图片
+- 每张图片的URL在 `item_list[i].image.large_images[0].image_url`
