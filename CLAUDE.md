@@ -24,10 +24,24 @@ Dreamina Agent Skills for Claude Code - 即梦 AI 创作工具的技能集合，
 
 ## Skills 结构
 
-`.claude/skills/` 目录包含 17 个 skill 文件：
+`.claude/skills/` 目录包含 17+ 个 skill 文件：
 - 工具类：gen-image, edit-image, poster, super-resolution, foreground-segmentation, video-*, inspiration-search, query-result
-- 规范类：prompt-writing, video-description, poster-design, character-consistency, text-in-image  
+- 规范类：prompt-writing, video-description, poster-design, character-consistency, text-in-image
 - 配置类：api-config, auth
+- 音乐分析：music-analyze, music-rhythm, music-emotion, music-timbre, music-tonality, music-lyrics, music-to-dreamina, music-to-storyboard, music-color-palette
+
+## Music Analyzer
+
+`music-analyzer/` 目录包含音频分析 Python 后端，分析本地音频文件并生成 Dreamina prompt / 分镜表 / 配色方案。
+
+```bash
+pip install -e music-analyzer/src/                    # 基础安装
+python3 -m music_analyzer analyze song.mp3            # 完整分析
+python3 -m music_analyzer dreamina analysis.json      # 生成 Dreamina prompt
+python3 -m music_analyzer visualize song.mp3 --open   # HTML 可视化报告
+```
+
+详见 `music-analyzer/README.md`。
 
 ## 关键参数
 
