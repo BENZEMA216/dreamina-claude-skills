@@ -1,63 +1,49 @@
-# Pull-Film 一键视频拉片分析
+---
+name: pull-film
+description: 一键视频拉片分析工具。自动分析视频的镜头语言、构图、色彩和音频，生成专业的HTML可视化报告。当用户需要：(1) 分析视频镜头语言 (2) 拉片 (3) 生成视频分析报告 (4) 使用 /pull-film 命令时使用此技能。
+---
+
+# 一键视频拉片分析
 
 自动分析视频的镜头语言、构图、色彩和音频，生成专业的 HTML 可视化报告。
 
 ## 触发条件
 
-当用户请求分析视频、拉片、或使用 `/pull-film` 命令时触发。
+当用户请求以下内容时触发：
+- "帮我分析/拉片这个视频"
+- "分析视频的镜头语言"
+- "/pull-film <视频路径或URL>"
 
-## 输入参数
+## 输入要求
 
-- `source`: 视频来源（本地路径或在线 URL）
-- `--language`: 音频转录语言（默认自动检测，可选：zh/en/ja 等）
-- `--output`: 输出目录（默认 `./pull-film-output`）
-- `--no-audio`: 跳过音频分析
-- `--max-scenes`: 最大分析镜头数
+- 视频来源：本地文件路径（.mp4/.mkv/.avi/.mov）或在线 URL（YouTube/Bilibili 等）
+- 可选参数：`--language <zh/en/ja>` 音频语言、`--output <目录>` 输出目录、`--no-audio` 跳过音频、`--max-scenes <数量>` 限制镜头数
+
+## 依赖
+
+| 工具 | 用途 | 安装 |
+|------|------|------|
+| ffmpeg/ffprobe | 视频处理、抽帧 | `brew install ffmpeg` |
+| Python3 + PIL | 色彩分析 | `pip3 install Pillow` |
+| scenedetect | 镜头切分 | `pip3 install "scenedetect[opencv]"` |
+| yt-dlp | 在线视频下载（可选） | `pip3 install yt-dlp` |
+| whisper | 音频转录（可选） | `pip3 install openai-whisper` |
 
 ## 执行流程
 
 ### 第 1 步：环境检查
 
-检查必要的依赖是否已安装：
-
-```bash
-# 检查 ffmpeg
-which ffmpeg || echo "❌ 需要安装 ffmpeg: brew install ffmpeg"
-
-# 检查 Python 和必要模块
-python3 -c "import cv2, numpy, PIL" 2>/dev/null || echo "❌ 需要安装: pip install opencv-python numpy Pillow"
-
-# 检查 yt-dlp（如果是在线视频）
-which yt-dlp || echo "⚠️ 在线视频需要: pip install yt-dlp"
-```
-
-如果缺少依赖，提示用户安装后再继续。
+检查 ffmpeg、python3、scenedetect 是否已安装，缺少则提示用户安装。
 
 ### 第 2 步：处理视频输入
 
-**本地视频：**
-```bash
-# 验证文件存在
-ls -la "<视频路径>"
+**本地视频** — 用 `ffprobe` 获取元信息（时长、分辨率、帧率、编码）
 
-# 获取视频信息
-ffprobe -v quiet -print_format json -show_format -show_streams "<视频路径>"
-```
-
-**在线视频（YouTube/Bilibili 等）：**
+**在线视频** — 用 `yt-dlp` 下载后再处理：
 ```bash
-# 下载视频
 yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" \
-  --merge-output-format mp4 \
-  -o "<输出目录>/source_video.mp4" \
-  "<URL>"
+  --merge-output-format mp4 -o "<输出目录>/source_video.mp4" "<URL>"
 ```
-
-提取关键元信息：
-- 时长 (duration)
-- 分辨率 (width x height)
-- 帧率 (fps)
-- 编码 (codec)
 
 ### 第 3 步：创建输出目录结构
 
