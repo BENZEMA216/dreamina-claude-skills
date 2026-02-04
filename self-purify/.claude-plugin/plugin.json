@@ -1,0 +1,13 @@
+{
+  "name": "self-purify",
+  "version": "1.0.0",
+  "description": "Claude Code self-purification plugin — security audit, CLAUDE.md optimization, and session pattern analysis",
+  "author": "local",
+  "skills": [
+    ".claude/skills/purify-audit",
+    ".claude/skills/purify-claudemd",
+    ".claude/skills/purify-patterns",
+    ".claude/skills/purify"
+  ],
+  "hooks": "hooks/hooks.json"
+}

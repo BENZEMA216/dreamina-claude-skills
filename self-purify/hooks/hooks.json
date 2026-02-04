@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash ~/.claude/plugins/self-purify/hooks/scripts/session-start-scan.sh",
+        "timeout": 5000
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "bash ~/.claude/plugins/self-purify/hooks/scripts/pre-tool-use-guard.sh",
+        "timeout": 3000,
+        "matcher": "Bash"
+      }
+    ]
+  }
+}
