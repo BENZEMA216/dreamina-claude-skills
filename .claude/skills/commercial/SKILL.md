@@ -9,181 +9,51 @@ allowed-tools: Read, Grep, Glob, WebFetch, WebSearch
 
 用户输入：$ARGUMENTS
 
-如果用户没有提供产品信息，主动询问以下内容：
-- 产品名称与品类
-- 客单价区间
-- 3个以内核心卖点
-- 目标人群画像
-- 是否有竞品素材参考（链接或描述）
-- 偏好的脚本类型（或由你推荐）
+如果用户没有提供产品信息，主动询问：产品名称与品类、客单价、核心卖点（3个以内）、目标人群、竞品素材参考、偏好脚本类型。
 
-收集完信息后，严格按以下六步执行，每一步都输出可直接使用的内容。
+## 工作流程
 
-## 策略知识库
+收集完信息后，严格按以下六步执行。每一步开始前，先加载对应的 rule 文件获取详细指令。
 
-### 创作手法（优先级）
-1. **借鉴性模仿**（首选）：参考竞品爆量素材结构，用 AIGC 重新生成画面。核心原则：非必要，不原创
-2. **AIGC 原创**：用 AI 生成全新画面和场景，适合竞品素材较少的蓝海品类
-3. **混剪+AI增强**：在已有素材基础上用 AI 替换背景、增强画质、生成新片段
+### Step 1：策略选择
 
-### 七种脚本类型
-| 类型 | 时长 | 适用场景 | AIGC 适配度 |
-|------|------|----------|-------------|
-| 情景种草 | 20-40s | 多卖点产品 | ★★★★★ AI生成场景+产品实拍合成 |
-| 素人口播 | 15-30s | 大众消费品 | ★★★★☆ 数字人+AI配音 |
-| 达人测评 | 30-60s | 中高客单 | ★★★☆☆ 需真人，AI辅助后期 |
-| 产品展款 | 7-15s | 视觉冲击强的产品 | ★★★★★ 纯AI生成，最适合AIGC |
-| 剧情演绎 | 30-60s | 品宣 | ★★★★☆ AI生成场景+角色 |
-| 卖家促销 | 15-30s | 高性价比产品 | ★★★★☆ AI生成工厂/仓库场景 |
-| 明星测评 | 30-60s | 品牌产品 | ★★☆☆☆ 版权风险高，不推荐AIGC |
+加载 [rules/strategy.md](rules/strategy.md) 了解创作手法优先级。
+加载 [rules/script-types.md](rules/script-types.md) 选择最合适的脚本类型。
 
-### 爆量素材八大共性（创作铁律）
-1. **前3秒留人**：写好开头就成功了99%（痛点提问/惊艳结果/冲突场景）
-2. **中间卖点充分**：一个镜头一个卖点，避免信息过载
-3. **结尾引导充分**：明确行动指引（点击购物车/进入直播间/立即下单）
-4. **前3秒锁定人群**：通过产品或话题圈定目标用户
-5. **内容不花哨**：产品与内容紧密结合
-6. **无利益点或后置**：淡化促销感，突出卖点本身
-7. **场景切入**：用生活化场景增强代入感
-8. **卖点视觉化**：能用画面就不要用文案
+### Step 2：分镜脚本
 
-## Step 1：信息收集与策略推荐
+加载 [rules/script-template.md](rules/script-template.md) 按模板输出完整分镜脚本。
 
-根据用户提供的信息推荐脚本类型和创作手法，说明原因。
+### Step 3：AI 图片 Prompt
 
-## Step 2：分镜脚本
+根据用户工具偏好，按需加载对应的 prompt 规则：
+- [rules/prompt-midjourney.md](rules/prompt-midjourney.md) - Midjourney Prompt 生成
+- [rules/prompt-sd.md](rules/prompt-sd.md) - Stable Diffusion Prompt 生成
+- [rules/prompt-kling.md](rules/prompt-kling.md) - 可灵图片 Prompt 生成
+- [rules/prompt-jimeng.md](rules/prompt-jimeng.md) - 即梦图片 Prompt 生成
 
-输出完整分镜脚本：
+### Step 4：AI 视频 Prompt
 
-```
-【脚本类型】：xxx
-【创作手法】：AIGC原创 / 借鉴性模仿 / 混剪+AI增强
-【目标人群】：xxx
-【预估时长】：xx秒
-【核心卖点】：xxx
+根据用户工具偏好，按需加载对应的 prompt 规则：
+- [rules/prompt-kling.md](rules/prompt-kling.md) - 可灵视频 Prompt 生成
+- [rules/prompt-runway.md](rules/prompt-runway.md) - Runway Gen-3 Prompt 生成
+- [rules/prompt-pika.md](rules/prompt-pika.md) - Pika Prompt 生成
+- [rules/prompt-sora.md](rules/prompt-sora.md) - Sora Prompt 生成
 
-| 镜号 | 时间 | 画面描述 | 口播/字幕文案 | 运镜 | AI生成方式 |
-|------|------|----------|---------------|------|------------|
-| 1 | 0-3s | xxx | xxx | xxx | 图片/视频/实拍 |
-| 2 | 3-8s | xxx | xxx | xxx | 图片/视频/实拍 |
-```
+### Step 5：音频方案
 
-"AI生成方式"列标注每个镜头的生成方式：AI图片、AI视频、数字人、实拍素材、或混合。
+加载 [rules/voiceover.md](rules/voiceover.md) 生成 AI 配音方案。
+加载 [rules/bgm.md](rules/bgm.md) 生成 BGM 建议。
 
-## Step 3：AI 图片 Prompt
+### Step 6：后期方案
 
-为每个需要 AI 图片的镜头生成 prompt，同时提供国内和海外工具版本：
+加载 [rules/subtitles.md](rules/subtitles.md) 生成字幕样式。
+加载 [rules/post-production.md](rules/post-production.md) 生成后期合成方案。
 
-```
---- 镜号 X：[画面描述摘要] ---
+## 质量检查（每次必须执行）
 
-【Midjourney Prompt】
-[英文prompt]，包含：主体描述, 场景环境, 光影氛围, 色调风格, 镜头参数
---ar 9:16 --s 250 --v 6.1
-
-【Stable Diffusion Prompt】
-Positive: [英文prompt]
-Negative: [负面提示词]
-推荐模型：xxx | 采样器：xxx | Steps：xxx | CFG：xxx
-
-【可灵/即梦 Prompt】
-[中文prompt]，包含：主体、场景、风格、光影、构图
-参考风格：写实/插画/3D
-```
-
-## Step 4：AI 视频 Prompt
-
-为每个需要 AI 视频的镜头生成 prompt：
-
-```
---- 镜号 X：[画面描述摘要] ---
-
-【可灵 AI 视频】
-首帧描述：[中文，描述起始画面]
-尾帧描述：[中文，描述结束画面]（如需要）
-运动描述：[镜头运动和主体运动]
-时长：5s
-模式：标准/专业
-
-【Runway Gen-3 Prompt】
-[英文prompt]，包含：场景描述 + camera movement + subject motion
-Duration: 5s / 10s
-Motion: [camera pan left, zoom in, static, etc.]
-
-【Pika Prompt】
-[英文prompt]
-Motion strength: 1-4
-Camera: [pan/zoom/rotate/none]
-
-【Sora Prompt】（如适用）
-[英文prompt]，自然语言描述完整画面运动
-Duration: 5-20s
-```
-
-## Step 5：AI 配音与音频方案
-
-```
-【配音文案】：
-完整口播文案（带语气标注和停顿标记）
-
-【AI 配音工具推荐】：
-- 国内：豆包/通义语音（推荐音色：xxx，语速：xxx）
-- 海外：ElevenLabs / PlayHT（推荐Voice ID：xxx）
-
-【BGM 建议】：
-- 风格：xxx
-- 节奏：xxx BPM
-- 推荐来源：剪映音乐库关键词 "xxx" / Epidemic Sound 搜索 "xxx"
-```
-
-## Step 6：字幕与后期方案
-
-```
-【字幕样式】：
-- 字体：xxx
-- 大小：xxx
-- 颜色：xxx（主色）+ xxx（描边/阴影）
-- 位置：画面下方 1/3 居中
-- 动效：逐字显示 / 弹出 / 无
-
-【后期合成建议】：
-- 推荐工具：剪映专业版 / CapCut / Premiere
-- 转场方式：xxx
-- 特效建议：xxx
-- 输出规格：1080x1920（9:16），30fps，H.264
-```
-
-## 质量检查（每次必须输出）
-
-完成以上步骤后，用爆量八大共性逐条检查：
-
-```
-【爆量检查清单】
-✅/❌ 前3秒留人 — [具体说明]
-✅/❌ 卖点充分 — [说明]
-✅/❌ 结尾引导 — [说明]
-✅/❌ 人群锁定 — [说明]
-✅/❌ 内容不花哨 — [说明]
-✅/❌ 利益点后置 — [说明]
-✅/❌ 场景切入 — [说明]
-✅/❌ 卖点视觉化 — [说明]
-
-【综合评分】：X/8
-【优化建议】：（如有未通过项，给出具体修改方案）
-```
+完成以上步骤后，加载 [rules/viral-checklist.md](rules/viral-checklist.md) 进行爆量八大共性逐条检查。
 
 ## 变体生成
 
-完成主方案后，主动询问用户是否需要：
-1. **A/B 测试变体**：替换前3秒钩子，生成 2-3 个不同开头版本的 prompt
-2. **多平台适配**：调整画面比例（16:9 横版 / 1:1 方版）的 prompt 变体
-3. **脚本类型切换**：同一产品换一种脚本类型重新生成全套方案
-
-## 注意事项
-
-- 所有 Midjourney/SD prompt 必须用英文，可灵/即梦 prompt 用中文
-- 视频 prompt 中必须明确标注镜头运动方式
-- 产品展款类脚本优先推荐纯 AI 视频生成
-- 涉及人物的场景，标注是否建议用数字人替代
-- 每个 prompt 都要标注推荐的画面比例（9:16 竖屏为主）
-- 如用户提供了竞品参考，先拆解竞品结构再生成方案
+主方案完成后，加载 [rules/ab-testing.md](rules/ab-testing.md) 询问用户是否需要 A/B 测试变体或多平台适配。
