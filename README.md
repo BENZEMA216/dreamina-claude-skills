@@ -88,6 +88,12 @@ claude mcp add chrome-devtools npx chrome-devtools-mcp@latest
 - `dreamina-poster` - 海报生成
 - `storyboard-generator` - 分镜生成器
 
+### 视频配音配乐
+- `/tts` - TTS 配音（Fish Audio / Azure Speech / OpenAI / MiniMax）
+- `/bgm` - AI 配乐（Suno / MusicGen / Mubert）
+- `/compose` - 视频合成（FFmpeg / MoviePy）
+- `/video-pipeline` - 全流程：文案 → 配音 → 配乐 → 合成
+
 ## 💡 使用示例
 
 ### 生成图片
@@ -107,6 +113,59 @@ claude code
 ### 视频生成
 ```bash
 > 使用首帧图片生成3秒的动态视频
+```
+
+### 视频配音配乐
+```bash
+# TTS 配音
+> /tts 用 OpenAI 的 nova 音色朗读这段文案："欢迎来到即梦创作平台"
+
+# AI 配乐
+> /bgm 生成30秒轻快的企业宣传背景音乐
+
+# 视频合成
+> /compose 把 video.mp4、voice.mp3、bgm.mp3 合成为 final.mp4
+
+# 一条龙
+> /video-pipeline 给 promo.mp4 配上这段文案的配音，再加个轻快的BGM
+```
+
+## 🎬 Video Tools
+
+`video-tools/` 目录包含视频自动化配音配乐 Python 工具链：
+
+### TTS 配音（4 服务）
+```bash
+python3 video-tools/tts/fish_audio.py --text "文案" --voice "音色ID" --output voice.mp3
+python3 video-tools/tts/azure_speech.py --text "文案" --voice "zh-CN-XiaoxiaoNeural" --output voice.mp3
+python3 video-tools/tts/openai_tts.py --text "文案" --voice "alloy" --output voice.mp3
+python3 video-tools/tts/minimax_tts.py --text "文案" --voice "female-shaonv" --output voice.mp3
+```
+
+### AI 配乐（3 服务）
+```bash
+python3 video-tools/music/suno.py --prompt "轻快的背景音乐" --duration 30 --output bgm.mp3
+python3 video-tools/music/musicgen.py --prompt "calm background music" --duration 30 --output bgm.mp3  # 需GPU
+python3 video-tools/music/mubert.py --prompt "upbeat corporate" --duration 30 --output bgm.mp3
+```
+
+### 视频合成
+```bash
+python3 video-tools/compose/compose.py --video input.mp4 --voice voice.mp3 --bgm bgm.mp3 --bgm-volume 0.2 --output final.mp4
+```
+
+### 环境变量
+```bash
+# TTS
+export FISH_AUDIO_KEY="..."
+export AZURE_SPEECH_KEY="..."
+export AZURE_SPEECH_REGION="eastasia"  # 可选
+export OPENAI_API_KEY="..."
+export MINIMAX_KEY="..."
+
+# Music
+export SUNO_KEY="..."
+export MUBERT_KEY="..."
 ```
 
 ## 🔧 高级配置
